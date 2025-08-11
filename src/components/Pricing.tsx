@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -111,8 +112,8 @@ const Pricing = () => {
               </div>
 
               {/* CTA Button */}
-              <Button variant="hero" size="lg" className="w-full text-lg py-6">
-                Start Your Free Trial
+              <Button variant="hero" size="lg" className="w-full text-lg py-6" asChild>
+                <Link to="/auth/signup">Get Started Today</Link>
               </Button>
 
               {/* Guarantee */}

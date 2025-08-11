@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,11 +37,11 @@ const Navigation = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost">
-              Sign In
+            <Button variant="ghost" asChild>
+              <Link to="/auth/login">Sign In</Link>
             </Button>
-            <Button variant="default">
-              Get Started
+            <Button variant="default" asChild>
+              <Link to="/auth/signup">Get Started</Link>
             </Button>
           </div>
 
@@ -74,11 +75,11 @@ const Navigation = () => {
                 Contact
               </a>
               <div className="pt-4 space-y-2">
-                <Button variant="ghost" className="w-full">
-                  Sign In
+                <Button variant="ghost" className="w-full" asChild>
+                  <Link to="/auth/login">Sign In</Link>
                 </Button>
-                <Button variant="default" className="w-full">
-                  Get Started
+                <Button variant="default" className="w-full" asChild>
+                  <Link to="/auth/signup">Get Started</Link>
                 </Button>
               </div>
             </div>
