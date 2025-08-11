@@ -79,7 +79,10 @@ export default function Messages() {
       avatar: "ED",
       lastMessage: "Thank you for the update",
       time: "5 hours ago",
-      unread: 0
+      unread: 0,
+      priority: false,
+      company: undefined,
+      sentiment: undefined
     }
   ];
 
@@ -91,7 +94,10 @@ export default function Messages() {
       avatar: "TR",
       lastMessage: "Estimate attached",
       time: "1 day ago",
-      unread: 0
+      unread: 0,
+      priority: false,
+      company: undefined,
+      sentiment: undefined
     }
   ];
 
