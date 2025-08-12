@@ -15,6 +15,12 @@ import Messages from "./pages/dashboard/Messages";
 import Earnings from "./pages/dashboard/Earnings";
 import Firms from "./pages/dashboard/Firms";
 import Calendar from "./pages/dashboard/Calendar";
+import Analytics from "./pages/dashboard/Analytics";
+import Vault from "./pages/dashboard/Vault";
+import Settings from "./pages/dashboard/Settings";
+import Admin from "./pages/dashboard/Admin";
+import Reports from "./pages/dashboard/Reports";
+import Support from "./pages/dashboard/Support";
 
 const queryClient = new QueryClient();
 
@@ -36,10 +42,12 @@ const App = () => (
             <Route path="earnings" element={<Earnings />} />
             <Route path="firms" element={<Firms />} />
             <Route path="calendar" element={<Calendar />} />
-            <Route path="analytics" element={<div className="p-6"><h1 className="text-2xl font-bold">Analytics</h1><p className="text-muted-foreground">Performance insights and reporting.</p></div>} />
-            <Route path="vault" element={<div className="p-6"><h1 className="text-2xl font-bold">Vault</h1><p className="text-muted-foreground">Secure document storage.</p></div>} />
-            <Route path="settings" element={<div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p className="text-muted-foreground">Configure your account and preferences.</p></div>} />
-            <Route path="admin" element={<div className="p-6"><h1 className="text-2xl font-bold">Admin Panel</h1><p className="text-muted-foreground">System administration.</p></div>} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="vault" element={<Vault />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="admin" element={<Admin />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="support" element={<Support />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
