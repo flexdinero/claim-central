@@ -66,8 +66,15 @@ export default function Dashboard() {
   ]);
 
   const handleAddWidget = useCallback((widget: Widget) => {
-    setWidgets(prev => [...prev, widget]);
-  }, []);
+    const newWidget = {
+      ...widget,
+      position: { 
+        x: 50 + (widgets.filter(w => w.isActive).length * 60), 
+        y: 50 + (widgets.filter(w => w.isActive).length * 60) 
+      }
+    };
+    setWidgets(prev => [...prev, newWidget]);
+  }, [widgets]);
 
   const handleRemoveWidget = useCallback((widgetId: string) => {
     setWidgets(prev => prev.map(w => 
@@ -158,49 +165,43 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Dynamic Widgets Grid */}
+      {/* Dynamic Widgets */}
       <div className="relative min-h-[600px]">
-        {widgets.filter(w => w.isActive).map(widget => {
-          const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
-                                   widget.component;
-          
-          const getSizeClass = (size: Widget['defaultSize']) => {
-            switch (size) {
-              case 'small': return 'w-80 h-80';
-              case 'medium': return 'w-96 h-96';  
-              case 'large': return 'w-[600px] h-96';
-              default: return 'w-96 h-96';
-            }
-          };
-
-          return (
-            <div 
-              key={widget.id} 
-              className={cn(
-                "absolute transition-all duration-200",
-                getSizeClass(widget.defaultSize)
-              )}
-              style={{
-                left: editMode ? widget.position.x : 'auto',
-                top: editMode ? widget.position.y : 'auto',
-                position: editMode ? 'absolute' : 'relative'
-              }}
-            >
-              <WidgetWrapper
-                widget={widget}
-                editMode={editMode}
-                onRemove={handleRemoveWidget}
-                onResize={(id, size) => handleUpdateWidget(id, { size })}
-                onMove={(id, position) => handleUpdateWidget(id, { position })}
-              >
-                <WidgetComponent />
-              </WidgetWrapper>
-            </div>
-          );
-        })}
-
-        {/* Grid Layout for Non-Edit Mode */}
-        {!editMode && (
+        {editMode ? (
+          // Edit Mode - Absolute positioning with drag/drop
+          <div className="relative w-full h-full">
+            {widgets.filter(w => w.isActive).map(widget => {
+              const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
+                                       widget.component;
+              
+              return (
+                <div 
+                  key={widget.id} 
+                  className="absolute"
+                  style={{
+                    left: widget.position.x,
+                    top: widget.position.y,
+                    width: `${widget.size.width * 80}px`,
+                    height: `${widget.size.height * 60}px`,
+                    minWidth: '320px',
+                    minHeight: '240px'
+                  }}
+                >
+                  <WidgetWrapper
+                    widget={widget}
+                    editMode={editMode}
+                    onRemove={handleRemoveWidget}
+                    onResize={(id, size) => handleUpdateWidget(id, { size })}
+                    onMove={(id, position) => handleUpdateWidget(id, { position })}
+                  >
+                    <WidgetComponent />
+                  </WidgetWrapper>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          // Normal Mode - Grid layout
           <div className="grid grid-cols-12 gap-6">
             {widgets.filter(w => w.isActive).map(widget => {
               const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
@@ -208,10 +209,10 @@ export default function Dashboard() {
               
               const getSizeClass = (size: Widget['defaultSize']) => {
                 switch (size) {
-                  case 'small': return 'col-span-4';
-                  case 'medium': return 'col-span-6';  
-                  case 'large': return 'col-span-12';
-                  default: return 'col-span-6';
+                  case 'small': return 'col-span-4 h-80';
+                  case 'medium': return 'col-span-6 h-96';  
+                  case 'large': return 'col-span-12 h-96';
+                  default: return 'col-span-6 h-96';
                 }
               };
 

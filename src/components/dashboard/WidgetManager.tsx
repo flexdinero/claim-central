@@ -266,21 +266,19 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
       
-      // Simple grid-based movement
-      const gridSize = 50;
-      const newX = Math.round(deltaX / gridSize) * gridSize;
-      const newY = Math.round(deltaY / gridSize) * gridSize;
-      
       onMove(widget.id, { 
-        x: Math.max(0, widget.position.x + newX), 
-        y: Math.max(0, widget.position.y + newY) 
+        x: Math.max(0, widget.position.x + deltaX), 
+        y: Math.max(0, widget.position.y + deltaY) 
       });
+      setDragStart({ x: e.clientX, y: e.clientY });
     }
 
     if (isResizing) {
       const deltaX = e.clientX - dragStart.x;
-      const newWidth = Math.max(3, widget.size.width + Math.round(deltaX / 100));
-      onResize(widget.id, { ...widget.size, width: newWidth });
+      const deltaY = e.clientY - dragStart.y;
+      const newWidth = Math.max(4, widget.size.width + Math.round(deltaX / 80));
+      const newHeight = Math.max(3, widget.size.height + Math.round(deltaY / 60));
+      onResize(widget.id, { width: newWidth, height: newHeight });
     }
   };
 
@@ -312,9 +310,6 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
         isDragging && "border-primary/60 shadow-lg",
         isResizing && "border-warning/60"
       )}
-      style={{
-        transform: editMode ? `translate(${widget.position.x}px, ${widget.position.y}px)` : undefined
-      }}
     >
       {/* Drag Handle */}
       <div 

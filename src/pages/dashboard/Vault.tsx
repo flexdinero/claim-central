@@ -246,15 +246,15 @@ const Vault = () => {
   const currentItems = selectedTab === "documents" ? documents : contracts;
 
   const filteredItems = currentItems.filter(item => {
-    const itemName = 'name' in item ? item.name : item.title;
-    const itemCategory = 'category' in item ? item.category : item.firm;
+    const itemName = 'name' in item ? item.name : (item as any).title;
+    const itemCategory = 'category' in item ? item.category : (item as any).firm;
     
     const matchesSearch = itemName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          item.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterType === "all" || 
-                       (selectedTab === "documents" && 'category' in item && item.category?.toLowerCase() === filterType) ||
-                       (selectedTab === "contracts" && 'firm' in item && item.firm?.toLowerCase().includes(filterType));
+                       (selectedTab === "documents" && 'category' in item && (item as any).category?.toLowerCase() === filterType) ||
+                       (selectedTab === "contracts" && 'firm' in item && (item as any).firm?.toLowerCase().includes(filterType));
     
     const matchesStatus = filterStatus === "all" || item.status?.toLowerCase() === filterStatus.toLowerCase();
     
