@@ -60,24 +60,24 @@ export default function Dashboard() {
       defaultSize: 'small',
       category: 'Communication',
       isActive: true,
-      position: { x: 960, y: 0 },
-      size: { width: 4, height: 6 }
+      position: { x: 240, y: 0 },
+      size: { width: 6, height: 6 }
     }
   ]);
 
   const checkCollision = (newWidget: Widget, existingWidgets: Widget[]) => {
     const newLeft = newWidget.position.x;
     const newTop = newWidget.position.y;
-    const newRight = newLeft + (newWidget.size.width * 80);
-    const newBottom = newTop + (newWidget.size.height * 60);
+    const newRight = newLeft + (newWidget.size.width * 20);
+    const newBottom = newTop + (newWidget.size.height * 20);
 
     return existingWidgets.some(existing => {
       if (!existing.isActive || existing.id === newWidget.id) return false;
       
       const existingLeft = existing.position.x;
       const existingTop = existing.position.y;
-      const existingRight = existingLeft + (existing.size.width * 80);
-      const existingBottom = existingTop + (existing.size.height * 60);
+      const existingRight = existingLeft + (existing.size.width * 20);
+      const existingBottom = existingTop + (existing.size.height * 20);
 
       return !(newRight <= existingLeft || 
                newLeft >= existingRight || 
@@ -87,19 +87,32 @@ export default function Dashboard() {
   };
 
   const findNonCollidingPosition = (widget: Widget, existingWidgets: Widget[]) => {
-    let x = 0;
-    let y = 0;
-    const step = 20;
+    const containerWidth = 1200; // Approximate container width
+    const containerHeight = 800; // Approximate container height
     
-    while (checkCollision({ ...widget, position: { x, y } }, existingWidgets)) {
-      x += step;
-      if (x > 800) {
-        x = 0;
-        y += step;
+    let x = 20;
+    let y = 20;
+    const stepX = 50;
+    const stepY = 50;
+    
+    // Try to find a non-colliding position
+    for (let row = 0; row < 20; row++) {
+      for (let col = 0; col < 20; col++) {
+        x = col * stepX + 20;
+        y = row * stepY + 20;
+        
+        // Make sure widget fits in container
+        if (x + (widget.size.width * 20) > containerWidth) continue;
+        if (y + (widget.size.height * 20) > containerHeight) continue;
+        
+        if (!checkCollision({ ...widget, position: { x, y } }, existingWidgets)) {
+          return { x, y };
+        }
       }
     }
     
-    return { x, y };
+    // If no position found, place at bottom right
+    return { x: 20, y: Math.max(20, existingWidgets.length * 100) };
   };
 
   const handleAddWidget = useCallback((widget: Widget) => {
@@ -216,7 +229,7 @@ export default function Dashboard() {
       <div className="relative min-h-[600px]">
         {editMode ? (
           // Edit Mode - Absolute positioning with drag/drop
-          <div className="relative w-full h-full">
+          <div className="relative w-full min-h-[600px] bg-muted/10 rounded-lg p-4">
             {widgets.filter(w => w.isActive).map(widget => {
               const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
                                        widget.component;
@@ -228,10 +241,10 @@ export default function Dashboard() {
                   style={{
                     left: widget.position.x,
                     top: widget.position.y,
-                    width: `${widget.size.width * 80}px`,
-                    height: `${widget.size.height * 60}px`,
-                    minWidth: '320px',
-                    minHeight: '240px',
+                    width: `${widget.size.width * 20}px`,
+                    height: `${widget.size.height * 20}px`,
+                    minWidth: '200px',
+                    minHeight: '150px',
                     zIndex: 1
                   }}
                 >
@@ -242,19 +255,20 @@ export default function Dashboard() {
                     onResize={(id, size) => handleUpdateWidget(id, { size })}
                     onMove={(id, position) => handleUpdateWidget(id, { position })}
                   >
-                    <div 
-                      className="w-full h-full"
-                      style={{
-                        width: `${widget.size.width * 80 - 16}px`,
-                        height: `${widget.size.height * 60 - 16}px`
-                      }}
-                    >
-                      <WidgetComponent />
-                    </div>
+                    <WidgetComponent />
                   </WidgetWrapper>
                 </div>
               );
             })}
+            
+            {widgets.filter(w => w.isActive).length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                <div className="text-center">
+                  <Plus className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>Click "Add Widgets" to get started</p>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           // Normal Mode - Grid layout

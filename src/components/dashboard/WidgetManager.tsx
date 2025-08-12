@@ -27,74 +27,83 @@ interface WidgetManagerProps {
   onToggleEditMode: () => void;
 }
 
+import { ClaimsFeedWidget } from '@/components/dashboard/widgets/ClaimsFeedWidget';
+import { MessagesWidget } from '@/components/dashboard/widgets/MessagesWidget';
+import { EarningsWidget } from '@/components/dashboard/widgets/EarningsWidget';
+import { FirmsWidget } from '@/components/dashboard/widgets/FirmsWidget';
+import { SmartSchedulingWidget } from '@/components/dashboard/widgets/SmartSchedulingWidget';
+import { AnalyticsWidget } from '@/components/dashboard/widgets/AnalyticsWidget';
+import { NotificationCenterWidget } from '@/components/dashboard/widgets/NotificationCenterWidget';
+import { LicensingComplianceWidget } from '@/components/dashboard/widgets/LicensingComplianceWidget';
+
 const AVAILABLE_WIDGETS: Omit<Widget, 'id' | 'isActive' | 'position' | 'size'>[] = [
   {
     name: 'Claims Feed',
     description: 'Unified real-time stream of new claim assignments from all partnered firms',
-    component: () => <div>Claims Feed Widget</div>,
+    component: ClaimsFeedWidget,
     defaultSize: 'large',
     category: 'Claims Management'
   },
   {
     name: 'Messages',
     description: 'Integrated communication hub with email, SMS, and portal messages',
-    component: () => <div>Messages Widget</div>,
+    component: MessagesWidget,
     defaultSize: 'medium',
     category: 'Communication'
   },
   {
     name: 'Earnings',
     description: 'Real-time earnings tracking with projections and firm performance analysis',
-    component: () => <div>Earnings Widget</div>,
+    component: EarningsWidget,
     defaultSize: 'medium',
     category: 'Financial'
   },
   {
     name: 'Firms',
     description: 'Firm relationship management with scorecards and connection status',
-    component: () => <div>Firms Widget</div>,
+    component: FirmsWidget,
     defaultSize: 'medium',
     category: 'Network'
   },
   {
     name: 'Smart Scheduling & Routing',
     description: 'Calendar and route planning with mileage tracking and optimization',
-    component: () => <div>Smart Scheduling Widget</div>,
+    component: SmartSchedulingWidget,
     defaultSize: 'large',
     category: 'Scheduling'
   },
   {
     name: 'Analytics',
     description: 'Performance dashboard with KPI tracking and firm comparisons',
-    component: () => <div>Analytics Widget</div>,
+    component: AnalyticsWidget,
     defaultSize: 'medium',
     category: 'Analytics'
   },
   {
     name: 'Notification Center',
     description: 'Centralized hub for all system alerts, reminders, and updates',
-    component: () => <div>Notification Center Widget</div>,
+    component: NotificationCenterWidget,
     defaultSize: 'small',
     category: 'Communication'
   },
   {
     name: 'Licensing & Compliance Tracker',
     description: 'Monitor state licenses, certifications, and continuing education requirements',
-    component: () => <div>Licensing Tracker Widget</div>,
+    component: LicensingComplianceWidget,
     defaultSize: 'medium',
     category: 'Compliance'
   },
   {
     name: 'Report Builder & Exporter',
     description: 'Create and export professional, carrier-ready reports directly from claim data',
-    component: () => <div>Report Builder Widget</div>,
+    component: () => <div className="p-4 text-center text-muted-foreground">Report Builder Widget - Coming Soon</div>,
     defaultSize: 'large',
     category: 'Documentation'
   },
   {
     name: 'CAT Event Management',
     description: 'Dedicated command center for managing catastrophic event responses',
-    component: () => <div>CAT Event Widget</div>,
+    component: () => <div className="p-4 text-center text-muted-foreground">CAT Event Widget - Coming Soon</div>,
     defaultSize: 'large',
     category: 'CAT Management'
   }
@@ -119,7 +128,7 @@ export function WidgetManager({
   const activeWidgetNames = new Set(widgets.filter(w => w.isActive).map(w => w.name));
 
   const handleAddWidget = (widgetTemplate: typeof AVAILABLE_WIDGETS[0]) => {
-    const widgetId = `${widgetTemplate.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+    const widgetId = `${widgetTemplate.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}-${Date.now()}`;
     const newWidget: Widget = {
       id: widgetId,
       name: widgetTemplate.name,
@@ -128,10 +137,10 @@ export function WidgetManager({
       defaultSize: widgetTemplate.defaultSize,
       category: widgetTemplate.category,
       isActive: true,
-      position: { x: 50 + (widgets.length * 50), y: 50 + (widgets.length * 50) },
+      position: { x: 0, y: 0 },
       size: { 
-        width: widgetTemplate.defaultSize === 'large' ? 12 : widgetTemplate.defaultSize === 'medium' ? 6 : 3, 
-        height: 6 
+        width: widgetTemplate.defaultSize === 'large' ? 16 : widgetTemplate.defaultSize === 'medium' ? 10 : 6, 
+        height: widgetTemplate.defaultSize === 'large' ? 8 : widgetTemplate.defaultSize === 'medium' ? 6 : 4
       }
     };
     onAddWidget(newWidget);
@@ -250,6 +259,8 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
     if (!editMode) return;
     
     e.preventDefault();
+    e.stopPropagation();
+    
     setDragStart({ x: e.clientX, y: e.clientY });
     
     if (action === 'drag') {
@@ -266,19 +277,22 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
       
-      onMove(widget.id, { 
-        x: Math.max(0, widget.position.x + deltaX), 
-        y: Math.max(0, widget.position.y + deltaY) 
-      });
+      const newX = Math.max(0, widget.position.x + deltaX);
+      const newY = Math.max(0, widget.position.y + deltaY);
+      
+      onMove(widget.id, { x: newX, y: newY });
       setDragStart({ x: e.clientX, y: e.clientY });
     }
 
     if (isResizing) {
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
-      const newWidth = Math.max(4, widget.size.width + Math.round(deltaX / 80));
-      const newHeight = Math.max(3, widget.size.height + Math.round(deltaY / 60));
-      onResize(widget.id, { width: newWidth, height: newHeight });
+      
+      const newWidth = Math.max(200, widget.size.width * 20 + deltaX) / 20;
+      const newHeight = Math.max(150, widget.size.height * 20 + deltaY) / 20;
+      
+      onResize(widget.id, { width: Math.round(newWidth), height: Math.round(newHeight) });
+      setDragStart({ x: e.clientX, y: e.clientY });
     }
   };
 
@@ -300,20 +314,21 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
   }, [isDragging, isResizing, dragStart, widget]);
 
   if (!editMode) {
-    return <div className="h-full">{children}</div>;
+    return <div className="h-full w-full">{children}</div>;
   }
 
   return (
     <div 
       className={cn(
-        "relative group h-full border-2 border-dashed border-primary/20 rounded-lg p-2",
-        isDragging && "border-primary/60 shadow-lg",
-        isResizing && "border-warning/60"
+        "relative group h-full w-full border-2 border-dashed border-primary/20 rounded-lg bg-background",
+        isDragging && "border-primary/60 shadow-lg z-50",
+        isResizing && "border-warning/60 z-40",
+        "hover:border-primary/40"
       )}
     >
       {/* Drag Handle */}
       <div 
-        className="absolute -top-8 left-0 right-0 h-6 bg-primary/10 rounded-t cursor-move opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+        className="absolute -top-8 left-0 right-0 h-6 bg-primary/10 rounded-t cursor-move opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
         onMouseDown={(e) => handleMouseDown(e, 'drag')}
       >
         <Move className="w-4 h-4 text-primary" />
@@ -321,32 +336,33 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
       </div>
 
       {/* Edit Controls */}
-      <div className="absolute -top-2 -right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant="destructive"
-            className="h-6 w-6 p-0"
-            onClick={() => onRemove(widget.id)}
-          >
-            <X className="w-3 h-3" />
-          </Button>
-        </div>
+      <div className="absolute -top-2 -right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          size="sm"
+          variant="destructive"
+          className="h-6 w-6 p-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(widget.id);
+          }}
+        >
+          <X className="w-3 h-3" />
+        </Button>
       </div>
 
       {/* Widget Content */}
-      <div className="h-full bg-background rounded border overflow-hidden">
-        <div className="w-full h-full p-2">
-          {children}
-        </div>
+      <div className="h-full w-full rounded border-2 border-transparent overflow-hidden p-2">
+        {children}
       </div>
 
       {/* Resize Handle */}
       <div 
-        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity bg-primary/20 rounded-tl"
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity bg-primary/20 rounded-tl z-10"
         onMouseDown={(e) => handleMouseDown(e, 'resize')}
       >
-        <MoreHorizontal className="w-3 h-3 text-primary" />
+        <div className="w-full h-full flex items-center justify-center">
+          <MoreHorizontal className="w-3 h-3 text-primary rotate-45" />
+        </div>
       </div>
     </div>
   );
