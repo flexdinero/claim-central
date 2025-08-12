@@ -251,12 +251,12 @@ export function WidgetManager({
       {/* Add Widgets Button */}
       <Dialog open={addWidgetOpen} onOpenChange={setAddWidgetOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Widgets
+          <Button variant="outline" size="sm" className="flex-shrink-0">
+            <Plus className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Widgets</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[80vh] overflow-hidden mx-auto">
           <DialogHeader>
             <DialogTitle>Add Widgets to Dashboard</DialogTitle>
           </DialogHeader>
@@ -277,7 +277,7 @@ export function WidgetManager({
             </div>
 
             {/* Available Widgets Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-h-[500px] overflow-y-auto p-1">
               {filteredWidgets.map((widget, index) => {
                 const isAdded = activeWidgetNames.has(widget.name);
                 
@@ -322,9 +322,10 @@ export function WidgetManager({
         variant={editMode ? "default" : "outline"}
         size="sm"
         onClick={onToggleEditMode}
+        className="flex-shrink-0"
       >
-        <Settings className="w-4 h-4 mr-2" />
-        {editMode ? 'Exit Edit' : 'Edit Widgets'}
+        <Settings className="w-4 h-4 sm:mr-2" />
+        <span className="hidden sm:inline">{editMode ? 'Exit Edit' : 'Edit Widgets'}</span>
       </Button>
     </div>
   );

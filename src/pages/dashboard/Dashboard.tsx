@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { WidgetManager, type Widget } from "@/components/dashboard/WidgetManager";
 import { GridLayoutWidget } from "@/components/dashboard/GridLayoutWidget";
 import { ClaimsFeedWidget } from "@/components/dashboard/widgets/ClaimsFeedWidget";
@@ -26,28 +26,62 @@ import {
   ArrowUpRight,
   Plus
 } from "lucide-react";
+import { checkAndResetWidgets } from "@/utils/resetWidgets";
 
-// Widget registry
+// Import all widgets
+import { DocumentManagementWidget } from "@/components/dashboard/widgets/DocumentManagementWidget";
+import { TaskManagerWidget } from "@/components/dashboard/widgets/TaskManagerWidget";
+import { WeatherWidget } from "@/components/dashboard/widgets/WeatherWidget";
+import { TimeTrackingWidget } from "@/components/dashboard/widgets/TimeTrackingWidget";
+import { ExpenseTrackerWidget } from "@/components/dashboard/widgets/ExpenseTrackerWidget";
+import { ContactsWidget } from "@/components/dashboard/widgets/ContactsWidget";
+import { ReportBuilderWidget } from "@/components/dashboard/widgets/ReportBuilderWidget";
+import { CATEventWidget } from "@/components/dashboard/widgets/CATEventWidget";
+import { MapWidget } from "@/components/dashboard/widgets/MapWidget";
+import { ClientPortalWidget } from "@/components/dashboard/widgets/ClientPortalWidget";
+
+// Widget registry - matches WidgetManager component names exactly
 const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
-  'claims-feed': ClaimsFeedWidget,
-  'notification-center': NotificationCenterWidget,
-  'messages': MessagesWidget,
-  'earnings': EarningsWidget,
-  'firms': FirmsWidget,
-  'smart-scheduling-routing': SmartSchedulingWidget,
-  'analytics': AnalyticsWidget,
-  'licensing-compliance-tracker': LicensingComplianceWidget,
+  ClaimsFeedWidget,
+  MessagesWidget,
+  EarningsWidget,
+  FirmsWidget,
+  SmartSchedulingWidget,
+  AnalyticsWidget,
+  NotificationCenterWidget,
+  LicensingComplianceWidget,
+  DocumentManagementWidget,
+  TaskManagerWidget,
+  WeatherWidget,
+  TimeTrackingWidget,
+  ExpenseTrackerWidget,
+  ContactsWidget,
+  ReportBuilderWidget,
+  CATEventWidget,
+  MapWidget,
+  ClientPortalWidget
 };
 
 export default function Dashboard() {
   const [editMode, setEditMode] = useState(false);
+  
+  // Check and reset widgets on component mount
+  useEffect(() => {
+    // Force reset localStorage to ensure clean widget state
+    localStorage.removeItem('dashboard-widgets');
+  }, []);
   
   // Load widgets from localStorage or use defaults
   const [widgets, setWidgets] = useState<Widget[]>(() => {
     const saved = localStorage.getItem('dashboard-widgets');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsedWidgets = JSON.parse(saved);
+        // Fix component references for loaded widgets
+        return parsedWidgets.map((widget: Widget) => ({
+          ...widget,
+          component: WIDGET_COMPONENTS[widget.component?.name] || WIDGET_COMPONENTS.ClaimsFeedWidget
+        }));
       } catch (error) {
         console.error('Failed to parse saved widgets:', error);
       }
@@ -57,7 +91,7 @@ export default function Dashboard() {
       id: 'claims-feed-default',
       name: 'Claims Feed',
       description: 'Unified real-time stream of new claim assignments',
-      component: ClaimsFeedWidget,
+      component: WIDGET_COMPONENTS.ClaimsFeedWidget,
       defaultSize: 'large',
       category: 'Claims Management',
       isActive: true,
@@ -68,7 +102,7 @@ export default function Dashboard() {
       id: 'notification-center-default',
       name: 'Notification Center',
       description: 'Centralized hub for all system alerts',
-      component: NotificationCenterWidget,
+      component: WIDGET_COMPONENTS.NotificationCenterWidget,
       defaultSize: 'small',
       category: 'Communication',
       isActive: true,
@@ -162,12 +196,12 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-4 md:p-6 space-y-4 md:space-y-6">
       {/* Welcome Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Welcome back, John</h1>
-          <p className="text-muted-foreground">Here's what's happening with your claims today.</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Welcome back, John</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Here's what's happening with your claims today.</p>
         </div>
         <WidgetManager
           widgets={widgets}
@@ -179,54 +213,54 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Claims</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+      {/* Key Metrics - Mobile First */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
+        <Card className="min-h-[80px] sm:min-h-[100px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-2 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Active Claims</CardTitle>
+            <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
+          <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">23</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600">+2</span> from yesterday
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">MTD Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+        <Card className="min-h-[80px] sm:min-h-[100px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-2 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">MTD Earnings</CardTitle>
+            <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$12,450</div>
+          <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">$12,450</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600">+18%</span> from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+        <Card className="min-h-[80px] sm:min-h-[100px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-2 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Pending Tasks</CardTitle>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
+          <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">8</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-amber-600">3 urgent</span>
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="min-h-[80px] sm:min-h-[100px]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-2 sm:p-4">
+            <CardTitle className="text-xs sm:text-sm font-medium">Response Rate</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">94%</div>
+          <CardContent className="p-2 pt-0 sm:p-4 sm:pt-0">
+            <div className="text-lg sm:text-2xl font-bold">94%</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600">+2%</span> this week
             </p>

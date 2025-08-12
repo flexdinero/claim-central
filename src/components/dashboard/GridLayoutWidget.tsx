@@ -71,11 +71,11 @@ export function GridLayoutWidget({
         onLayoutChange={handleLayoutChange}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-        rowHeight={60}
+        rowHeight={50}
         isDraggable={editMode}
         isResizable={editMode}
-        margin={[16, 16]}
-        containerPadding={[0, 0]}
+        margin={[8, 8]}
+        containerPadding={[8, 8]}
         useCSSTransforms={true}
         compactType="vertical"
         preventCollision={true}

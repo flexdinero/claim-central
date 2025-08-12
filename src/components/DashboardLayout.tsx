@@ -185,45 +185,46 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
         <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-3 md:py-4">
             {/* Left Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-1">
               <Button
                 variant="ghost"
                 size="sm"
-                className="lg:hidden"
+                className="lg:hidden p-2"
                 onClick={() => setSidebarMobileOpen(true)}
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
               
               {/* Global Search */}
-              <div className="relative w-64 max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <div className="relative flex-1 max-w-xs sm:max-w-sm md:max-w-md">
+                <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-3 h-3 sm:w-4 sm:h-4" />
                 <Input
-                  placeholder="Search claims, firms, messages..."
-                  className="pl-9"
+                  placeholder="Search..."
+                  className="pl-6 sm:pl-9 text-sm h-8 sm:h-9"
                 />
               </div>
             </div>
 
             {/* Right Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-4">
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2"
               >
-                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === "dark" ? <Sun className="w-3 h-3 sm:w-4 sm:h-4" /> : <Moon className="w-3 h-3 sm:w-4 sm:h-4" />}
               </Button>
 
               {/* Notifications */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="relative">
-                    <Bell className="w-4 h-4" />
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0">
+                  <Button variant="ghost" size="sm" className="relative p-2">
+                    <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-xs p-0">
                       3
                     </Badge>
                   </Button>
@@ -252,16 +253,16 @@ export default function DashboardLayout() {
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback>
+                  <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2">
+                    <Avatar className="w-6 h-6 sm:w-8 sm:h-8">
+                      <AvatarFallback className="text-xs sm:text-sm">
                         {user?.user_metadata?.first_name && user?.user_metadata?.last_name 
                           ? `${user.user_metadata.first_name[0]}${user.user_metadata.last_name[0]}`
                           : user?.email?.[0]?.toUpperCase() || 'U'
                         }
                       </AvatarFallback>
                     </Avatar>
-                    <div className="hidden sm:block text-left">
+                    <div className="hidden md:block text-left">
                       <p className="text-sm font-medium">
                         {user?.user_metadata?.first_name && user?.user_metadata?.last_name 
                           ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
@@ -297,7 +298,7 @@ export default function DashboardLayout() {
 
       {/* AI Chat Panel */}
       {aiChatOpen && (
-        <div className="w-80 border-l border-border bg-background flex flex-col">
+        <div className="fixed right-0 top-0 bottom-0 w-80 sm:w-96 border-l border-border bg-background flex flex-col z-30 lg:relative lg:z-auto">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h3 className="font-medium">AI Assistant</h3>
             <Button variant="ghost" size="sm" onClick={() => setAiChatOpen(false)}>
