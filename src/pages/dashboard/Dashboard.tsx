@@ -11,6 +11,8 @@ import { EarningsWidget } from "@/components/dashboard/widgets/EarningsWidget";
 import { FirmsWidget } from "@/components/dashboard/widgets/FirmsWidget";
 import { SmartSchedulingWidget } from "@/components/dashboard/widgets/SmartSchedulingWidget";
 import { AnalyticsWidget } from "@/components/dashboard/widgets/AnalyticsWidget";
+import { LicensingComplianceWidget } from "@/components/dashboard/widgets/LicensingComplianceWidget";
+import { cn } from "@/lib/utils";
 import { 
   FileText, 
   DollarSign, 
@@ -33,6 +35,7 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
   'firms': FirmsWidget,
   'smart-scheduling-&-routing': SmartSchedulingWidget,
   'analytics': AnalyticsWidget,
+  'licensing-&-compliance-tracker': LicensingComplianceWidget,
 };
 
 export default function Dashboard() {
@@ -62,9 +65,8 @@ export default function Dashboard() {
     }
   ]);
 
-  const handleAddWidget = useCallback((widgetId: string) => {
-    // Implementation will be added when widget templates are created
-    console.log('Adding widget:', widgetId);
+  const handleAddWidget = useCallback((widget: Widget) => {
+    setWidgets(prev => [...prev, widget]);
   }, []);
 
   const handleRemoveWidget = useCallback((widgetId: string) => {
@@ -157,27 +159,39 @@ export default function Dashboard() {
       </div>
 
       {/* Dynamic Widgets Grid */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="relative min-h-[600px]">
         {widgets.filter(w => w.isActive).map(widget => {
-          const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-')] || 
+          const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
                                    widget.component;
           
           const getSizeClass = (size: Widget['defaultSize']) => {
             switch (size) {
-              case 'small': return 'col-span-4';
-              case 'medium': return 'col-span-6';  
-              case 'large': return 'col-span-8';
-              default: return 'col-span-6';
+              case 'small': return 'w-80 h-80';
+              case 'medium': return 'w-96 h-96';  
+              case 'large': return 'w-[600px] h-96';
+              default: return 'w-96 h-96';
             }
           };
 
           return (
-            <div key={widget.id} className={getSizeClass(widget.defaultSize)}>
+            <div 
+              key={widget.id} 
+              className={cn(
+                "absolute transition-all duration-200",
+                getSizeClass(widget.defaultSize)
+              )}
+              style={{
+                left: editMode ? widget.position.x : 'auto',
+                top: editMode ? widget.position.y : 'auto',
+                position: editMode ? 'absolute' : 'relative'
+              }}
+            >
               <WidgetWrapper
                 widget={widget}
                 editMode={editMode}
                 onRemove={handleRemoveWidget}
                 onResize={(id, size) => handleUpdateWidget(id, { size })}
+                onMove={(id, position) => handleUpdateWidget(id, { position })}
               >
                 <WidgetComponent />
               </WidgetWrapper>
@@ -185,32 +199,59 @@ export default function Dashboard() {
           );
         })}
 
-        {/* Quick Actions - Always show when space available */}
-        {widgets.filter(w => w.isActive).length < 3 && (
-          <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks and shortcuts</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-2" variant="outline">
-                <Plus className="w-4 h-4" />
-                Create New Claim
-              </Button>
-              <Button className="w-full justify-start gap-2" variant="outline">
-                <Calendar className="w-4 h-4" />
-                Schedule Inspection
-              </Button>
-              <Button className="w-full justify-start gap-2" variant="outline">
-                <DollarSign className="w-4 h-4" />
-                Generate Invoice
-              </Button>
-              <Button className="w-full justify-start gap-2" variant="outline">
-                <FileText className="w-4 h-4" />
-                Upload Documents
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Grid Layout for Non-Edit Mode */}
+        {!editMode && (
+          <div className="grid grid-cols-12 gap-6">
+            {widgets.filter(w => w.isActive).map(widget => {
+              const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
+                                       widget.component;
+              
+              const getSizeClass = (size: Widget['defaultSize']) => {
+                switch (size) {
+                  case 'small': return 'col-span-4';
+                  case 'medium': return 'col-span-6';  
+                  case 'large': return 'col-span-12';
+                  default: return 'col-span-6';
+                }
+              };
+
+              return (
+                <div key={`grid-${widget.id}`} className={getSizeClass(widget.defaultSize)}>
+                  <WidgetComponent />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Default Quick Actions when no widgets */}
+        {widgets.filter(w => w.isActive).length === 0 && !editMode && (
+          <div className="col-span-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Common tasks and shortcuts</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button className="w-full justify-start gap-2" variant="outline">
+                  <Plus className="w-4 h-4" />
+                  Create New Claim
+                </Button>
+                <Button className="w-full justify-start gap-2" variant="outline">
+                  <Calendar className="w-4 h-4" />
+                  Schedule Inspection
+                </Button>
+                <Button className="w-full justify-start gap-2" variant="outline">
+                  <DollarSign className="w-4 h-4" />
+                  Generate Invoice
+                </Button>
+                <Button className="w-full justify-start gap-2" variant="outline">
+                  <FileText className="w-4 h-4" />
+                  Upload Documents
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </div>

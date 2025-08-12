@@ -20,7 +20,7 @@ export interface Widget {
 
 interface WidgetManagerProps {
   widgets: Widget[];
-  onAddWidget: (widgetId: string) => void;
+  onAddWidget: (widget: Widget) => void;
   onRemoveWidget: (widgetId: string) => void;
   onUpdateWidget: (widgetId: string, updates: Partial<Widget>) => void;
   editMode: boolean;
@@ -34,6 +34,48 @@ const AVAILABLE_WIDGETS: Omit<Widget, 'id' | 'isActive' | 'position' | 'size'>[]
     component: () => <div>Claims Feed Widget</div>,
     defaultSize: 'large',
     category: 'Claims Management'
+  },
+  {
+    name: 'Messages',
+    description: 'Integrated communication hub with email, SMS, and portal messages',
+    component: () => <div>Messages Widget</div>,
+    defaultSize: 'medium',
+    category: 'Communication'
+  },
+  {
+    name: 'Earnings',
+    description: 'Real-time earnings tracking with projections and firm performance analysis',
+    component: () => <div>Earnings Widget</div>,
+    defaultSize: 'medium',
+    category: 'Financial'
+  },
+  {
+    name: 'Firms',
+    description: 'Firm relationship management with scorecards and connection status',
+    component: () => <div>Firms Widget</div>,
+    defaultSize: 'medium',
+    category: 'Network'
+  },
+  {
+    name: 'Smart Scheduling & Routing',
+    description: 'Calendar and route planning with mileage tracking and optimization',
+    component: () => <div>Smart Scheduling Widget</div>,
+    defaultSize: 'large',
+    category: 'Scheduling'
+  },
+  {
+    name: 'Analytics',
+    description: 'Performance dashboard with KPI tracking and firm comparisons',
+    component: () => <div>Analytics Widget</div>,
+    defaultSize: 'medium',
+    category: 'Analytics'
+  },
+  {
+    name: 'Notification Center',
+    description: 'Centralized hub for all system alerts, reminders, and updates',
+    component: () => <div>Notification Center Widget</div>,
+    defaultSize: 'small',
+    category: 'Communication'
   },
   {
     name: 'Licensing & Compliance Tracker',
@@ -55,48 +97,6 @@ const AVAILABLE_WIDGETS: Omit<Widget, 'id' | 'isActive' | 'position' | 'size'>[]
     component: () => <div>CAT Event Widget</div>,
     defaultSize: 'large',
     category: 'CAT Management'
-  },
-  {
-    name: 'Knowledge Base & Training',
-    description: 'Built-in learning hub with tutorials, best practices, and platform updates',
-    component: () => <div>Knowledge Base Widget</div>,
-    defaultSize: 'medium',
-    category: 'Training'
-  },
-  {
-    name: 'Performance Goals',
-    description: 'Set, track, and visualize progress toward personal business goals',
-    component: () => <div>Performance Goals Widget</div>,
-    defaultSize: 'medium',
-    category: 'Analytics'
-  },
-  {
-    name: 'Legal & Contract Repository',
-    description: 'Secure management of legal agreements and contracts with partnered firms',
-    component: () => <div>Legal Repository Widget</div>,
-    defaultSize: 'medium',
-    category: 'Legal'
-  },
-  {
-    name: 'Note & Voice Memo Hub',
-    description: 'Capture information in text, audio, or annotated photos linked to claims',
-    component: () => <div>Note Hub Widget</div>,
-    defaultSize: 'medium',
-    category: 'Documentation'
-  },
-  {
-    name: 'Task Checklist & Workflow',
-    description: 'Dynamic task management with automated workflows and SLA tracking',
-    component: () => <div>Task Checklist Widget</div>,
-    defaultSize: 'medium',
-    category: 'Workflow'
-  },
-  {
-    name: 'Notification Center',
-    description: 'Centralized hub for all system alerts, reminders, and updates',
-    component: () => <div>Notification Center Widget</div>,
-    defaultSize: 'small',
-    category: 'Communication'
   }
 ];
 
@@ -116,11 +116,25 @@ export function WidgetManager({
     ? AVAILABLE_WIDGETS 
     : AVAILABLE_WIDGETS.filter(w => w.category === selectedCategory);
 
-  const activeWidgetIds = new Set(widgets.filter(w => w.isActive).map(w => w.id));
+  const activeWidgetNames = new Set(widgets.filter(w => w.isActive).map(w => w.name));
 
   const handleAddWidget = (widgetTemplate: typeof AVAILABLE_WIDGETS[0]) => {
     const widgetId = `${widgetTemplate.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
-    onAddWidget(widgetId);
+    const newWidget: Widget = {
+      id: widgetId,
+      name: widgetTemplate.name,
+      description: widgetTemplate.description,
+      component: widgetTemplate.component,
+      defaultSize: widgetTemplate.defaultSize,
+      category: widgetTemplate.category,
+      isActive: true,
+      position: { x: 50 + (widgets.length * 50), y: 50 + (widgets.length * 50) },
+      size: { 
+        width: widgetTemplate.defaultSize === 'large' ? 12 : widgetTemplate.defaultSize === 'medium' ? 6 : 3, 
+        height: 6 
+      }
+    };
+    onAddWidget(newWidget);
     setAddWidgetOpen(false);
   };
 
@@ -166,8 +180,7 @@ export function WidgetManager({
             {/* Available Widgets Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
               {filteredWidgets.map((widget, index) => {
-                const widgetId = `${widget.name.toLowerCase().replace(/\s+/g, '-')}-template`;
-                const isAdded = activeWidgetIds.has(widgetId);
+                const isAdded = activeWidgetNames.has(widget.name);
                 
                 return (
                   <Card key={index} className={cn("cursor-pointer transition-colors", isAdded && "bg-muted")}>
@@ -218,22 +231,100 @@ export function WidgetManager({
   );
 }
 
-// Widget Wrapper Component for Edit Mode
+// Widget Wrapper Component for Edit Mode with Drag & Drop
 interface WidgetWrapperProps {
   widget: Widget;
   editMode: boolean;
   onRemove: (id: string) => void;
   onResize: (id: string, size: Widget['size']) => void;
+  onMove: (id: string, position: Widget['position']) => void;
   children: React.ReactNode;
 }
 
-export function WidgetWrapper({ widget, editMode, onRemove, onResize, children }: WidgetWrapperProps) {
+export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, children }: WidgetWrapperProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isResizing, setIsResizing] = useState(false);
+
+  const handleMouseDown = (e: React.MouseEvent, action: 'drag' | 'resize') => {
+    if (!editMode) return;
+    
+    e.preventDefault();
+    setDragStart({ x: e.clientX, y: e.clientY });
+    
+    if (action === 'drag') {
+      setIsDragging(true);
+    } else {
+      setIsResizing(true);
+    }
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!editMode) return;
+
+    if (isDragging) {
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+      
+      // Simple grid-based movement
+      const gridSize = 50;
+      const newX = Math.round(deltaX / gridSize) * gridSize;
+      const newY = Math.round(deltaY / gridSize) * gridSize;
+      
+      onMove(widget.id, { 
+        x: Math.max(0, widget.position.x + newX), 
+        y: Math.max(0, widget.position.y + newY) 
+      });
+    }
+
+    if (isResizing) {
+      const deltaX = e.clientX - dragStart.x;
+      const newWidth = Math.max(3, widget.size.width + Math.round(deltaX / 100));
+      onResize(widget.id, { ...widget.size, width: newWidth });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
+  React.useEffect(() => {
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, isResizing, dragStart, widget]);
+
   if (!editMode) {
     return <div className="h-full">{children}</div>;
   }
 
   return (
-    <div className="relative group h-full border-2 border-dashed border-primary/20 rounded-lg p-2">
+    <div 
+      className={cn(
+        "relative group h-full border-2 border-dashed border-primary/20 rounded-lg p-2",
+        isDragging && "border-primary/60 shadow-lg",
+        isResizing && "border-warning/60"
+      )}
+      style={{
+        transform: editMode ? `translate(${widget.position.x}px, ${widget.position.y}px)` : undefined
+      }}
+    >
+      {/* Drag Handle */}
+      <div 
+        className="absolute -top-8 left-0 right-0 h-6 bg-primary/10 rounded-t cursor-move opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+        onMouseDown={(e) => handleMouseDown(e, 'drag')}
+      >
+        <Move className="w-4 h-4 text-primary" />
+        <span className="text-xs text-primary ml-2 truncate">{widget.name}</span>
+      </div>
+
       {/* Edit Controls */}
       <div className="absolute -top-2 -right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="flex gap-1">
@@ -254,8 +345,11 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, children }
       </div>
 
       {/* Resize Handle */}
-      <div className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity">
-        <MoreHorizontal className="w-3 h-3 text-muted-foreground" />
+      <div 
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity bg-primary/20 rounded-tl"
+        onMouseDown={(e) => handleMouseDown(e, 'resize')}
+      >
+        <MoreHorizontal className="w-3 h-3 text-primary" />
       </div>
     </div>
   );
