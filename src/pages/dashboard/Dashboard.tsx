@@ -6,6 +6,11 @@ import { useState, useCallback } from "react";
 import { WidgetManager, WidgetWrapper, type Widget } from "@/components/dashboard/WidgetManager";
 import { ClaimsFeedWidget } from "@/components/dashboard/widgets/ClaimsFeedWidget";
 import { NotificationCenterWidget } from "@/components/dashboard/widgets/NotificationCenterWidget";
+import { MessagesWidget } from "@/components/dashboard/widgets/MessagesWidget";
+import { EarningsWidget } from "@/components/dashboard/widgets/EarningsWidget";
+import { FirmsWidget } from "@/components/dashboard/widgets/FirmsWidget";
+import { SmartSchedulingWidget } from "@/components/dashboard/widgets/SmartSchedulingWidget";
+import { AnalyticsWidget } from "@/components/dashboard/widgets/AnalyticsWidget";
 import { 
   FileText, 
   DollarSign, 
@@ -23,7 +28,11 @@ import {
 const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
   'claims-feed': ClaimsFeedWidget,
   'notification-center': NotificationCenterWidget,
-  // Add more widgets here as they're implemented
+  'messages': MessagesWidget,
+  'earnings': EarningsWidget,
+  'firms': FirmsWidget,
+  'smart-scheduling-&-routing': SmartSchedulingWidget,
+  'analytics': AnalyticsWidget,
 };
 
 export default function Dashboard() {
