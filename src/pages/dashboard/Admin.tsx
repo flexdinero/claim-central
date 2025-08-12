@@ -10,9 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Users, Activity, Shield, Server, DollarSign, AlertTriangle, CheckCircle, Eye, Edit, Trash2, Settings, Database, Upload, Download, RefreshCw, Power, HardDrive } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const Admin = () => {
+  const { toast } = useToast();
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showUserDetailsDialog, setShowUserDetailsDialog] = useState(false);
@@ -215,25 +216,27 @@ const Admin = () => {
     { level: "Info", message: "System health check passed", timestamp: "2024-12-21 10:25:00", source: "Health Monitor" }
   ];
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (status.toLowerCase()) {
       case 'active':
       case 'connected':
       case 'healthy':
       case 'paid':
-        return 'bg-green-100 text-green-800';
+      case 'success':
+        return 'secondary';
       case 'suspended':
       case 'error':
       case 'warning':
-        return 'bg-red-100 text-red-800';
+      case 'failed':
+        return 'destructive';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'outline';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'default';
     }
   };
 
-  const getLogLevelColor = (level: string) => {
+  const getLogLevelColor = (level: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (level.toLowerCase()) {
       case 'error':
         return 'destructive';
@@ -243,6 +246,15 @@ const Admin = () => {
         return 'secondary';
       default:
         return 'outline';
+    }
+  };
+
+  const getPriorityColor = (priority: string): "default" | "destructive" | "secondary" | "outline" => {
+    switch (priority.toLowerCase()) {
+      case 'high': return 'destructive';
+      case 'medium': return 'default';
+      case 'low': return 'secondary';
+      default: return 'outline';
     }
   };
 
@@ -501,7 +513,7 @@ const Admin = () => {
                   </Button>
                   <Button onClick={() => {
                     setShowAddUserDialog(false);
-                    toast.success("User created successfully!");
+                    toast({ title: "User created successfully!" });
                   }}>
                     Create User
                   </Button>
@@ -563,7 +575,7 @@ const Admin = () => {
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            onClick={() => toast.success(`User ${user.status === 'Active' ? 'suspended' : 'activated'} successfully!`)}
+                            onClick={() => toast({ title: `User ${user.status === 'Active' ? 'suspended' : 'activated'} successfully!` })}
                           >
                             <AlertTriangle className="h-3 w-3" />
                           </Button>
@@ -724,7 +736,7 @@ const Admin = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => toast.success("Services restarted successfully!")}
+                    onClick={() => toast({ title: "Services restarted successfully!" })}
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Restart Services
@@ -732,7 +744,7 @@ const Admin = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => toast.success("Cache cleared successfully!")}
+                    onClick={() => toast({ title: "Cache cleared successfully!" })}
                   >
                     <HardDrive className="mr-2 h-4 w-4" />
                     Clear Cache
@@ -740,7 +752,7 @@ const Admin = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => toast.success("Backup created successfully!")}
+                    onClick={() => toast({ title: "Backup created successfully!" })}
                   >
                     <Database className="mr-2 h-4 w-4" />
                     Create Backup
@@ -748,7 +760,7 @@ const Admin = () => {
                   <Button 
                     variant="destructive" 
                     className="w-full justify-start"
-                    onClick={() => toast.success("System shutdown initiated!")}
+                    onClick={() => toast({ title: "System shutdown initiated!" })}
                   >
                     <Power className="mr-2 h-4 w-4" />
                     Shutdown System
@@ -789,7 +801,7 @@ const Admin = () => {
                     onCheckedChange={setDebugLogging}
                   />
                 </div>
-                <Button onClick={() => toast.success("Settings saved successfully!")}>
+                <Button onClick={() => toast({ title: "Settings saved successfully!" })}>
                   Save Configuration
                 </Button>
               </CardContent>
@@ -821,7 +833,7 @@ const Admin = () => {
                   <Label>IP Whitelisting</Label>
                   <Switch />
                 </div>
-                <Button onClick={() => toast.success("Security settings saved!")}>
+                <Button onClick={() => toast({ title: "Security settings saved!" })}>
                   Save Security Settings
                 </Button>
               </CardContent>
@@ -881,7 +893,7 @@ const Admin = () => {
                   <SelectItem value="info">Info</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={() => toast.success("Logs refreshed!")}>
+              <Button variant="outline" onClick={() => toast({ title: "Logs refreshed!" })}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
               </Button>
@@ -931,7 +943,7 @@ const Admin = () => {
                     <p className="text-sm text-muted-foreground mb-4">
                       Create a full system backup including database, files, and configurations.
                     </p>
-                    <Button className="w-full" onClick={() => toast.success("Backup creation started!")}>
+                    <Button className="w-full" onClick={() => toast({ title: "Backup creation started!" })}>
                       <Database className="mr-2 h-4 w-4" />
                       Start Backup
                     </Button>

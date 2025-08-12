@@ -227,18 +227,18 @@ const Vault = () => {
     }
   ];
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): string => {
     switch (status.toLowerCase()) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       case 'expiring soon':
-        return 'bg-orange-100 text-orange-800';
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
       case 'expired':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
       case 'pending signature':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
   };
 
@@ -246,13 +246,15 @@ const Vault = () => {
   const currentItems = selectedTab === "documents" ? documents : contracts;
 
   const filteredItems = currentItems.filter(item => {
-    const matchesSearch = item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const itemName = 'name' in item ? item.name : item.title;
+    const itemCategory = 'category' in item ? item.category : item.firm;
+    
+    const matchesSearch = itemName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          item.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterType === "all" || 
-                       (selectedTab === "documents" && item.category?.toLowerCase() === filterType) ||
-                       (selectedTab === "contracts" && item.firm?.toLowerCase().includes(filterType));
+                       (selectedTab === "documents" && 'category' in item && item.category?.toLowerCase() === filterType) ||
+                       (selectedTab === "contracts" && 'firm' in item && item.firm?.toLowerCase().includes(filterType));
     
     const matchesStatus = filterStatus === "all" || item.status?.toLowerCase() === filterStatus.toLowerCase();
     
@@ -470,15 +472,19 @@ const Vault = () => {
           {/* Documents Grid/List */}
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((doc) => (
+              {filteredItems.map((doc) => {
+                const itemName = 'name' in doc ? doc.name : doc.title;
+                const itemCategory = 'category' in doc ? doc.category : doc.firm;
+                
+                return (
                 <Card key={doc.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <FileText className="h-5 w-5 text-blue-600" />
                         <div>
-                          <CardTitle className="text-base">{doc.name}</CardTitle>
-                          <CardDescription>{doc.category}</CardDescription>
+                          <CardTitle className="text-base">{itemName}</CardTitle>
+                          <CardDescription>{itemCategory}</CardDescription>
                         </div>
                       </div>
                       <Badge className={getStatusColor(doc.status)}>
@@ -497,7 +503,7 @@ const Vault = () => {
                         <span>{doc.size}</span>
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {doc.tags.map((tag, index) => (
+                        {selectedTab === "documents" && 'tags' in doc && doc.tags?.map((tag, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {tag}
                           </Badge>
@@ -531,19 +537,24 @@ const Vault = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <Card>
               <CardContent className="p-0">
                 <div className="space-y-0">
-                  {filteredItems.map((doc, index) => (
+                  {filteredItems.map((doc, index) => {
+                    const itemName = 'name' in doc ? doc.name : doc.title;
+                    const itemCategory = 'category' in doc ? doc.category : doc.firm;
+                    
+                    return (
                     <div key={doc.id} className={`flex items-center justify-between p-4 ${index !== filteredItems.length - 1 ? 'border-b' : ''}`}>
                       <div className="flex items-center gap-4">
                         <FileText className="h-5 w-5 text-blue-600" />
                         <div>
-                          <div className="font-medium">{doc.name}</div>
-                          <div className="text-sm text-muted-foreground">{doc.category} • {doc.size} • Expires: {doc.expiryDate}</div>
+                          <div className="font-medium">{itemName}</div>
+                          <div className="text-sm text-muted-foreground">{itemCategory} • {doc.size} • Expires: {doc.expiryDate}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
@@ -573,7 +584,8 @@ const Vault = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -602,15 +614,19 @@ const Vault = () => {
           {/* Contracts Grid/List */}
           {viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((contract) => (
+              {filteredItems.map((contract) => {
+                const itemName = 'name' in contract ? contract.name : contract.title;
+                const itemFirm = 'firm' in contract ? contract.firm : 'category' in contract ? contract.category : '';
+                
+                return (
                 <Card key={contract.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-5 w-5 text-blue-600" />
                         <div>
-                          <CardTitle className="text-base">{contract.title}</CardTitle>
-                          <CardDescription>{contract.firm}</CardDescription>
+                          <CardTitle className="text-base">{itemName}</CardTitle>
+                          <CardDescription>{itemFirm}</CardDescription>
                         </div>
                       </div>
                       <Badge className={getStatusColor(contract.status)}>
@@ -626,14 +642,14 @@ const Vault = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Commission:</span>
-                        <span>{contract.commissionRate}</span>
+                        <span>{'commissionRate' in contract ? contract.commissionRate : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Territory:</span>
-                        <span className="text-right">{contract.territory}</span>
+                        <span className="text-right">{'territory' in contract ? contract.territory : 'N/A'}</span>
                       </div>
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {contract.specialties.map((specialty, index) => (
+                        {('specialties' in contract ? contract.specialties : []).map((specialty, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {specialty}
                           </Badge>
@@ -669,19 +685,25 @@ const Vault = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <Card>
               <CardContent className="p-0">
                 <div className="space-y-0">
-                  {filteredItems.map((contract, index) => (
+                  {filteredItems.map((contract, index) => {
+                    const itemName = 'name' in contract ? contract.name : contract.title;
+                    const itemFirm = 'firm' in contract ? contract.firm : 'category' in contract ? contract.category : '';
+                    const itemCommission = 'commissionRate' in contract ? contract.commissionRate : 'N/A';
+                    
+                    return (
                     <div key={contract.id} className={`flex items-center justify-between p-4 ${index !== filteredItems.length - 1 ? 'border-b' : ''}`}>
                       <div className="flex items-center gap-4">
                         <Building2 className="h-5 w-5 text-blue-600" />
                         <div>
-                          <div className="font-medium">{contract.title}</div>
-                          <div className="text-sm text-muted-foreground">{contract.firm} • {contract.commissionRate} • Expires: {contract.expiryDate}</div>
+                          <div className="font-medium">{itemName}</div>
+                          <div className="text-sm text-muted-foreground">{itemFirm} • {itemCommission} • Expires: {contract.expiryDate}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
@@ -713,7 +735,8 @@ const Vault = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -726,7 +749,7 @@ const Vault = () => {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              {selectedItem?.name || selectedItem?.title}
+              {'name' in selectedItem ? selectedItem.name : selectedItem.title}
             </DialogTitle>
             <DialogDescription>
               {selectedItem?.description}
@@ -744,7 +767,7 @@ const Vault = () => {
                     <CardContent className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">Category:</span>
-                        <span>{selectedItem.category}</span>
+                        <span>{'category' in selectedItem ? selectedItem.category : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-medium">Status:</span>
@@ -775,7 +798,7 @@ const Vault = () => {
                       <div>
                         <Label className="font-medium">Tags:</Label>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {selectedItem.tags?.map((tag: string, index: number) => (
+                          {(selectedTab === "documents" && 'tags' in selectedItem ? selectedItem.tags : [])?.map((tag: string, index: number) => (
                             <Badge key={index} variant="outline">
                               {tag}
                             </Badge>
@@ -800,7 +823,7 @@ const Vault = () => {
                     <CardContent className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">Firm:</span>
-                        <span>{selectedItem.firm}</span>
+                        <span>{'firm' in selectedItem ? selectedItem.firm : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-medium">Status:</span>
@@ -830,16 +853,16 @@ const Vault = () => {
                     <CardContent className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">Commission Rate:</span>
-                        <span>{selectedItem.commissionRate}</span>
+                        <span>{'commissionRate' in selectedItem ? selectedItem.commissionRate : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-medium">Territory:</span>
-                        <span>{selectedItem.territory}</span>
+                        <span>{'territory' in selectedItem ? selectedItem.territory : 'N/A'}</span>
                       </div>
                       <div>
                         <span className="font-medium">Specialties:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {selectedItem.specialties?.map((specialty: string, index: number) => (
+                          {('specialties' in selectedItem ? selectedItem.specialties : [])?.map((specialty: string, index: number) => (
                             <Badge key={index} variant="outline">
                               {specialty}
                             </Badge>

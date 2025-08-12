@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MessageSquare, HelpCircle, Phone, Mail, Clock, ExternalLink, Send, FileText, Zap, CreditCard, Users, Search, ChevronRight, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const Support = () => {
+  const { toast } = useToast();
   const [showNewTicketDialog, setShowNewTicketDialog] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [showTicketDialog, setShowTicketDialog] = useState(false);
@@ -176,7 +177,7 @@ const Support = () => {
     }
   ];
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (priority.toLowerCase()) {
       case 'high': return 'destructive';
       case 'medium': return 'default';
@@ -185,7 +186,7 @@ const Support = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (status.toLowerCase()) {
       case 'open': return 'destructive';
       case 'in progress': return 'default';
@@ -273,7 +274,7 @@ const Support = () => {
               </Button>
               <Button onClick={() => {
                 setShowNewTicketDialog(false);
-                toast.success("Support ticket created successfully! We'll respond within 24 hours.");
+                toast({ title: "Support ticket created successfully! We'll respond within 24 hours." });
               }}>
                 <Send className="mr-2 h-4 w-4" />
                 Create Ticket
@@ -390,7 +391,7 @@ const Support = () => {
                         className="min-h-24"
                       />
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => toast.success("Reply sent successfully!")}>
+                        <Button size="sm" onClick={() => toast({ title: "Reply sent successfully!" })}>
                           <Send className="mr-2 h-3 w-3" />
                           Send Reply
                         </Button>

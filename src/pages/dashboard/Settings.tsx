@@ -13,9 +13,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { User, Bell, Shield, Eye, Link, CreditCard, MessageSquare, HeadphonesIcon, Users, Upload, Download, Trash2, Smartphone, Laptop, Globe, Calendar, DollarSign, Zap, AlertTriangle, CheckCircle, ExternalLink, Copy } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const { toast } = useToast();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(false);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -125,7 +126,7 @@ const Settings = () => {
     { date: "2024-09-01", description: "Pro Plan - Monthly", amount: "$49.99", status: "Paid" }
   ];
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (priority.toLowerCase()) {
       case 'high': return 'destructive';
       case 'medium': return 'default';
@@ -134,7 +135,7 @@ const Settings = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (status.toLowerCase()) {
       case 'open': return 'destructive';
       case 'in progress': return 'default';
@@ -790,7 +791,7 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">Drag and drop files here, or click to browse</p>
                 </div>
               </div>
-              <Button onClick={() => toast.success("Feedback submitted successfully!")}>
+              <Button onClick={() => toast({ title: "Feedback submitted successfully!" })}>
                 Submit Feedback
               </Button>
             </CardContent>
@@ -847,7 +848,7 @@ const Settings = () => {
                     className="min-h-32"
                   />
                 </div>
-                <Button onClick={() => toast.success("Support ticket created successfully!")}>
+                <Button onClick={() => toast({ title: "Support ticket created successfully!" })}>
                   Create Ticket
                 </Button>
               </CardContent>
@@ -973,7 +974,7 @@ const Settings = () => {
                       variant="outline"
                       onClick={() => {
                         navigator.clipboard.writeText("https://flexia.com/ref/johndoe");
-                        toast.success("Link copied to clipboard!");
+                        toast({ title: "Link copied to clipboard!" });
                       }}
                     >
                       <Copy className="h-4 w-4" />
