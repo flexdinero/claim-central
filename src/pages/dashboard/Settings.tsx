@@ -525,8 +525,8 @@ const Settings = () => {
                     Export Data
                   </Button>
                 </div>
-                <div className="p-4 border rounded-lg border-red-200">
-                  <h4 className="font-medium mb-2 text-red-600">Delete Account</h4>
+                <div className="p-4 border rounded-lg border-destructive/20">
+                  <h4 className="font-medium mb-2 text-destructive">Delete Account</h4>
                   <p className="text-sm text-muted-foreground mb-4">
                     Permanently delete your account and all associated data.
                   </p>

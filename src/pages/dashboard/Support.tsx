@@ -310,7 +310,7 @@ const Support = () => {
                     }}
                   >
                     <div className="flex items-center gap-4">
-                      <MessageSquare className="h-5 w-5 text-blue-600" />
+                      <MessageSquare className="h-5 w-5 text-primary" />
                       <div>
                         <div className="font-medium">{ticket.subject}</div>
                         <div className="text-sm text-muted-foreground">
@@ -367,9 +367,9 @@ const Support = () => {
                     <div className="space-y-4">
                       {selectedTicket.messages.map((message: any) => (
                         <div key={message.id} className={`flex gap-3 ${message.isSupport ? 'flex-row' : 'flex-row-reverse'}`}>
-                          <div className={`max-w-[70%] rounded-lg p-3 ${message.isSupport 
-                            ? 'bg-blue-50 border border-blue-200' 
-                            : 'bg-gray-50 border border-gray-200'
+                           <div className={`max-w-[70%] rounded-lg p-3 ${message.isSupport 
+                            ? 'bg-primary/10 border border-primary/20' 
+                            : 'bg-muted border border-border'
                           }`}>
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-sm font-medium">{message.sender}</span>

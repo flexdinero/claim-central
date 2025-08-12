@@ -179,7 +179,7 @@ export default function Messages() {
               <TabsTrigger value="priority" className="flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4" />
                 Priority
-                <Badge className="ml-1 bg-red-500">1</Badge>
+                <Badge className="ml-1 bg-destructive">1</Badge>
               </TabsTrigger>
               <TabsTrigger value="firms" className="flex items-center gap-2">
                 <Building className="w-4 h-4" />
@@ -215,7 +215,7 @@ export default function Messages() {
                   key={contact.id}
                   className={`cursor-pointer transition-colors hover:bg-muted/50 ${
                     currentContact?.id === contact.id ? 'bg-muted border-primary' : ''
-                  } ${contact.priority ? 'border-blue-500 border-2' : ''}`}
+                  } ${contact.priority ? 'border-primary border-2' : ''}`}
                   onClick={() => setSelectedContact(contact)}
                 >
                   <CardContent className="p-4">
@@ -225,7 +225,7 @@ export default function Messages() {
                           <AvatarFallback>{contact.avatar}</AvatarFallback>
                         </Avatar>
                         {contact.priority && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full animate-pulse" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
