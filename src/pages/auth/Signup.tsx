@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -16,20 +18,61 @@ export default function Signup() {
     confirmPassword: "",
     agreeToTerms: false
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match");
+      toast({
+        title: "Password mismatch",
+        description: "Passwords don't match",
+        variant: "destructive",
+      });
       return;
     }
+    
     if (!formData.agreeToTerms) {
-      alert("Please agree to the terms and conditions");
+      toast({
+        title: "Terms required",
+        description: "Please agree to the terms and conditions",
+        variant: "destructive",
+      });
       return;
     }
-    // For now, just redirect to checkout
-    // In a real app, this would create account with Supabase
-    window.location.href = "/checkout";
+    
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    const { error } = await signUp(
+      formData.email, 
+      formData.password, 
+      formData.firstName, 
+      formData.lastName
+    );
+    
+    if (!error) {
+      navigate('/auth/login', { replace: true });
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -130,8 +173,8 @@ export default function Signup() {
                 </Label>
               </div>
 
-              <Button type="submit" className="w-full">
-                Create Account
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             </form>
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,13 @@ export default function DashboardLayout() {
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const location = useLocation();
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/', { replace: true });
+  };
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -246,11 +254,21 @@ export default function DashboardLayout() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
                     <Avatar className="w-8 h-8">
-                      <AvatarFallback>JD</AvatarFallback>
+                      <AvatarFallback>
+                        {user?.user_metadata?.first_name && user?.user_metadata?.last_name 
+                          ? `${user.user_metadata.first_name[0]}${user.user_metadata.last_name[0]}`
+                          : user?.email?.[0]?.toUpperCase() || 'U'
+                        }
+                      </AvatarFallback>
                     </Avatar>
                     <div className="hidden sm:block text-left">
-                      <p className="text-sm font-medium">John Doe</p>
-                      <p className="text-xs text-muted-foreground">john@example.com</p>
+                      <p className="text-sm font-medium">
+                        {user?.user_metadata?.first_name && user?.user_metadata?.last_name 
+                          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
+                          : user?.email?.split('@')[0] || 'User'
+                        }
+                      </p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
@@ -262,7 +280,7 @@ export default function DashboardLayout() {
                     <Link to="/dashboard/settings">Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => window.location.href = "/"}>
+                  <DropdownMenuItem onClick={handleSignOut}>
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>

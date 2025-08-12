@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/hooks/useAuth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
@@ -28,33 +30,39 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="flex-ia-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="claims" element={<Claims />} />
-            <Route path="messages" element={<Messages />} />
-            <Route path="earnings" element={<Earnings />} />
-            <Route path="firms" element={<Firms />} />
-            <Route path="calendar" element={<Calendar />} />
-            <Route path="analytics" element={<Analytics />} />
-            <Route path="vault" element={<Vault />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="admin" element={<Admin />} />
-            <Route path="reports" element={<Reports />} />
-            <Route path="support" element={<Support />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/signup" element={<Signup />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="claims" element={<Claims />} />
+              <Route path="messages" element={<Messages />} />
+              <Route path="earnings" element={<Earnings />} />
+              <Route path="firms" element={<Firms />} />
+              <Route path="calendar" element={<Calendar />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="vault" element={<Vault />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="admin" element={<Admin />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="support" element={<Support />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

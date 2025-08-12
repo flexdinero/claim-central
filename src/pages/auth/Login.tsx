@@ -1,22 +1,38 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
     email: "",
     password: ""
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just redirect to dashboard
-    // In a real app, this would authenticate with Supabase
-    window.location.href = "/dashboard";
+    setIsLoading(true);
+    
+    const { error } = await signIn(credentials.email, credentials.password);
+    
+    if (!error) {
+      navigate('/dashboard', { replace: true });
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -73,8 +89,8 @@ export default function Login() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full">
-                Sign In
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
 
