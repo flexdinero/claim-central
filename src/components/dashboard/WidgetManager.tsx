@@ -47,130 +47,152 @@ import { CATEventWidget } from '@/components/dashboard/widgets/CATEventWidget';
 import { MapWidget } from '@/components/dashboard/widgets/MapWidget';
 import { ClientPortalWidget } from '@/components/dashboard/widgets/ClientPortalWidget';
 
+// Widget registry with proper component assignments
+const WIDGET_COMPONENTS = {
+  ClaimsFeedWidget,
+  MessagesWidget,
+  EarningsWidget,
+  FirmsWidget,
+  SmartSchedulingWidget,
+  AnalyticsWidget,
+  NotificationCenterWidget,
+  LicensingComplianceWidget,
+  DocumentManagementWidget,
+  TaskManagerWidget,
+  WeatherWidget,
+  TimeTrackingWidget,
+  ExpenseTrackerWidget,
+  ContactsWidget,
+  ReportBuilderWidget,
+  CATEventWidget,
+  MapWidget,
+  ClientPortalWidget
+};
+
 const AVAILABLE_WIDGETS: Omit<Widget, 'id' | 'isActive' | 'position' | 'size'>[] = [
   {
     name: 'Claims Feed',
     description: 'Unified real-time stream of new claim assignments from all partnered firms',
-    component: ClaimsFeedWidget,
+    component: WIDGET_COMPONENTS.ClaimsFeedWidget,
     defaultSize: 'large',
     category: 'Claims Management'
   },
   {
     name: 'Messages',
     description: 'Integrated communication hub with email, SMS, and portal messages',
-    component: MessagesWidget,
+    component: WIDGET_COMPONENTS.MessagesWidget,
     defaultSize: 'medium',
     category: 'Communication'
   },
   {
     name: 'Earnings',
     description: 'Real-time earnings tracking with projections and firm performance analysis',
-    component: EarningsWidget,
+    component: WIDGET_COMPONENTS.EarningsWidget,
     defaultSize: 'medium',
     category: 'Financial'
   },
   {
     name: 'Firms',
     description: 'Firm relationship management with scorecards and connection status',
-    component: FirmsWidget,
+    component: WIDGET_COMPONENTS.FirmsWidget,
     defaultSize: 'medium',
     category: 'Network'
   },
   {
     name: 'Smart Scheduling & Routing',
     description: 'Calendar and route planning with mileage tracking and optimization',
-    component: SmartSchedulingWidget,
+    component: WIDGET_COMPONENTS.SmartSchedulingWidget,
     defaultSize: 'large',
     category: 'Scheduling'
   },
   {
     name: 'Analytics',
     description: 'Performance dashboard with KPI tracking and firm comparisons',
-    component: AnalyticsWidget,
+    component: WIDGET_COMPONENTS.AnalyticsWidget,
     defaultSize: 'medium',
     category: 'Analytics'
   },
   {
     name: 'Notification Center',
     description: 'Centralized hub for all system alerts, reminders, and updates',
-    component: NotificationCenterWidget,
+    component: WIDGET_COMPONENTS.NotificationCenterWidget,
     defaultSize: 'small',
     category: 'Communication'
   },
   {
     name: 'Licensing & Compliance Tracker',
     description: 'Monitor state licenses, certifications, and continuing education requirements',
-    component: LicensingComplianceWidget,
+    component: WIDGET_COMPONENTS.LicensingComplianceWidget,
     defaultSize: 'medium',
     category: 'Compliance'
   },
   {
     name: 'Report Builder & Exporter',
     description: 'Create and export professional, carrier-ready reports directly from claim data',
-    component: ReportBuilderWidget,
+    component: WIDGET_COMPONENTS.ReportBuilderWidget,
     defaultSize: 'large',
     category: 'Documentation'
   },
   {
     name: 'CAT Event Management',
     description: 'Dedicated command center for managing catastrophic event responses',
-    component: CATEventWidget,
+    component: WIDGET_COMPONENTS.CATEventWidget,
     defaultSize: 'large',
     category: 'CAT Management'
   },
   {
     name: 'Document Management',
     description: 'Organize, store, and manage all claim-related documents and files',
-    component: DocumentManagementWidget,
+    component: WIDGET_COMPONENTS.DocumentManagementWidget,
     defaultSize: 'medium',
     category: 'Documentation'
   },
   {
     name: 'Task Manager',
     description: 'Create, assign, and track tasks and deadlines across all claims',
-    component: TaskManagerWidget,
+    component: WIDGET_COMPONENTS.TaskManagerWidget,
     defaultSize: 'medium',
     category: 'Productivity'
   },
   {
     name: 'Weather Monitor',
     description: 'Real-time weather conditions and forecasts for claim locations',
-    component: WeatherWidget,
+    component: WIDGET_COMPONENTS.WeatherWidget,
     defaultSize: 'small',
     category: 'Weather'
   },
   {
     name: 'Time Tracking',
     description: 'Track billable hours and time spent on claims and projects',
-    component: TimeTrackingWidget,
+    component: WIDGET_COMPONENTS.TimeTrackingWidget,
     defaultSize: 'medium',
     category: 'Productivity'
   },
   {
     name: 'Expense Tracker',
     description: 'Log and manage business expenses with receipt capture and approval workflow',
-    component: ExpenseTrackerWidget,
+    component: WIDGET_COMPONENTS.ExpenseTrackerWidget,
     defaultSize: 'medium',
     category: 'Financial'
   },
   {
     name: 'Contacts Directory',
     description: 'Quick access to important contacts with communication tools',
-    component: ContactsWidget,
+    component: WIDGET_COMPONENTS.ContactsWidget,
     defaultSize: 'medium',
     category: 'Communication'
   },
   {
     name: 'Interactive Map',
     description: 'View claim locations, plan routes, and track mileage with GPS integration',
-    component: MapWidget,
+    component: WIDGET_COMPONENTS.MapWidget,
     defaultSize: 'large',
     category: 'Mapping'
   },
   {
     name: 'Client Portal Monitor',
     description: 'Monitor client interactions, uploads, and communication through the client portal',
-    component: ClientPortalWidget,
+    component: WIDGET_COMPONENTS.ClientPortalWidget,
     defaultSize: 'medium',
     category: 'Communication'
   }
@@ -196,6 +218,7 @@ export function WidgetManager({
 
   const handleAddWidget = (widgetTemplate: typeof AVAILABLE_WIDGETS[0]) => {
     const widgetId = `${widgetTemplate.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}-${Date.now()}`;
+    
     const newWidget: Widget = {
       id: widgetId,
       name: widgetTemplate.name,

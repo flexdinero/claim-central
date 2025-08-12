@@ -83,20 +83,12 @@ export function GridLayoutWidget({
         {activeWidgets.map((widget) => {
           const WidgetComponent = widget.component;
           
-          // Debug logging
-          console.log(`Rendering widget: ${widget.name}`, {
-            component: WidgetComponent,
-            hasComponent: !!WidgetComponent,
-            componentType: typeof WidgetComponent
-          });
-          
           if (!WidgetComponent) {
-            console.error(`Widget component is undefined for widget: ${widget.name}`, widget);
             return (
               <div key={widget.id} className="widget-container">
                 <div className="p-4 border-2 border-red-500 rounded bg-red-50 text-center">
                   <p className="text-red-700 font-semibold">Error: Widget "{widget.name}" component not found</p>
-                  <p className="text-red-600 text-sm mt-1">Component type: {typeof WidgetComponent}</p>
+                  <p className="text-red-600 text-sm mt-1">Please refresh the page</p>
                 </div>
               </div>
             );
