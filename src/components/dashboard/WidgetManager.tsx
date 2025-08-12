@@ -335,8 +335,10 @@ export function WidgetWrapper({ widget, editMode, onRemove, onResize, onMove, ch
       </div>
 
       {/* Widget Content */}
-      <div className="h-full bg-background rounded border">
-        {children}
+      <div className="h-full bg-background rounded border overflow-hidden">
+        <div className="w-full h-full p-2">
+          {children}
+        </div>
       </div>
 
       {/* Resize Handle */}

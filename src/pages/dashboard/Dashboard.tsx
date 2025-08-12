@@ -33,9 +33,9 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
   'messages': MessagesWidget,
   'earnings': EarningsWidget,
   'firms': FirmsWidget,
-  'smart-scheduling-&-routing': SmartSchedulingWidget,
+  'smart-scheduling-routing': SmartSchedulingWidget,
   'analytics': AnalyticsWidget,
-  'licensing-&-compliance-tracker': LicensingComplianceWidget,
+  'licensing-compliance-tracker': LicensingComplianceWidget,
 };
 
 export default function Dashboard() {
@@ -60,18 +60,53 @@ export default function Dashboard() {
       defaultSize: 'small',
       category: 'Communication',
       isActive: true,
-      position: { x: 8, y: 0 },
+      position: { x: 960, y: 0 },
       size: { width: 4, height: 6 }
     }
   ]);
 
+  const checkCollision = (newWidget: Widget, existingWidgets: Widget[]) => {
+    const newLeft = newWidget.position.x;
+    const newTop = newWidget.position.y;
+    const newRight = newLeft + (newWidget.size.width * 80);
+    const newBottom = newTop + (newWidget.size.height * 60);
+
+    return existingWidgets.some(existing => {
+      if (!existing.isActive || existing.id === newWidget.id) return false;
+      
+      const existingLeft = existing.position.x;
+      const existingTop = existing.position.y;
+      const existingRight = existingLeft + (existing.size.width * 80);
+      const existingBottom = existingTop + (existing.size.height * 60);
+
+      return !(newRight <= existingLeft || 
+               newLeft >= existingRight || 
+               newBottom <= existingTop || 
+               newTop >= existingBottom);
+    });
+  };
+
+  const findNonCollidingPosition = (widget: Widget, existingWidgets: Widget[]) => {
+    let x = 0;
+    let y = 0;
+    const step = 20;
+    
+    while (checkCollision({ ...widget, position: { x, y } }, existingWidgets)) {
+      x += step;
+      if (x > 800) {
+        x = 0;
+        y += step;
+      }
+    }
+    
+    return { x, y };
+  };
+
   const handleAddWidget = useCallback((widget: Widget) => {
+    const position = findNonCollidingPosition(widget, widgets);
     const newWidget = {
       ...widget,
-      position: { 
-        x: 50 + (widgets.filter(w => w.isActive).length * 60), 
-        y: 50 + (widgets.filter(w => w.isActive).length * 60) 
-      }
+      position
     };
     setWidgets(prev => [...prev, newWidget]);
   }, [widgets]);
@@ -83,9 +118,21 @@ export default function Dashboard() {
   }, []);
 
   const handleUpdateWidget = useCallback((widgetId: string, updates: Partial<Widget>) => {
-    setWidgets(prev => prev.map(w => 
-      w.id === widgetId ? { ...w, ...updates } : w
-    ));
+    setWidgets(prev => {
+      const newWidgets = prev.map(w => 
+        w.id === widgetId ? { ...w, ...updates } : w
+      );
+      
+      // Check for collision if position is being updated
+      if (updates.position) {
+        const updatedWidget = newWidgets.find(w => w.id === widgetId);
+        if (updatedWidget && checkCollision(updatedWidget, newWidgets.filter(w => w.id !== widgetId))) {
+          return prev; // Don't update if it would cause collision
+        }
+      }
+      
+      return newWidgets;
+    });
   }, []);
 
   const toggleEditMode = useCallback(() => {
@@ -184,7 +231,8 @@ export default function Dashboard() {
                     width: `${widget.size.width * 80}px`,
                     height: `${widget.size.height * 60}px`,
                     minWidth: '320px',
-                    minHeight: '240px'
+                    minHeight: '240px',
+                    zIndex: 1
                   }}
                 >
                   <WidgetWrapper
@@ -194,7 +242,15 @@ export default function Dashboard() {
                     onResize={(id, size) => handleUpdateWidget(id, { size })}
                     onMove={(id, position) => handleUpdateWidget(id, { position })}
                   >
-                    <WidgetComponent />
+                    <div 
+                      className="w-full h-full"
+                      style={{
+                        width: `${widget.size.width * 80 - 16}px`,
+                        height: `${widget.size.height * 60 - 16}px`
+                      }}
+                    >
+                      <WidgetComponent />
+                    </div>
                   </WidgetWrapper>
                 </div>
               );
@@ -218,7 +274,9 @@ export default function Dashboard() {
 
               return (
                 <div key={`grid-${widget.id}`} className={getSizeClass(widget.defaultSize)}>
-                  <WidgetComponent />
+                  <div className="w-full h-full">
+                    <WidgetComponent />
+                  </div>
                 </div>
               );
             })}
