@@ -80,19 +80,34 @@ export function GridLayoutWidget({
         compactType="vertical"
         preventCollision={true}
       >
-        {activeWidgets.map((widget) => (
-          <div key={widget.id} className="widget-container">
-            <WidgetWrapper
-              widget={widget}
-              editMode={editMode}
-              onRemove={onRemoveWidget}
-              onResize={(id, size) => onUpdateWidget(id, { size })}
-              onMove={(id, position) => onUpdateWidget(id, { position })}
-            >
-              <widget.component />
-            </WidgetWrapper>
-          </div>
-        ))}
+        {activeWidgets.map((widget) => {
+          const WidgetComponent = widget.component;
+          
+          if (!WidgetComponent) {
+            console.error(`Widget component is undefined for widget: ${widget.name}`, widget);
+            return (
+              <div key={widget.id} className="widget-container">
+                <div className="p-4 border-2 border-red-500 rounded bg-red-50">
+                  <p className="text-red-700">Error: Widget "{widget.name}" component not found</p>
+                </div>
+              </div>
+            );
+          }
+          
+          return (
+            <div key={widget.id} className="widget-container">
+              <WidgetWrapper
+                widget={widget}
+                editMode={editMode}
+                onRemove={onRemoveWidget}
+                onResize={(id, size) => onUpdateWidget(id, { size })}
+                onMove={(id, position) => onUpdateWidget(id, { position })}
+              >
+                <WidgetComponent />
+              </WidgetWrapper>
+            </div>
+          );
+        })}
       </ResponsiveGridLayout>
       
       <style>{`
