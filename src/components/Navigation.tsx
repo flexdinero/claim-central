@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTheme } from "@/components/ThemeProvider";
+import { Moon, Sun } from "lucide-react";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   return (
     <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm border-b border-border z-50">
@@ -37,6 +40,14 @@ const Navigation = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="w-9 px-0"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
             <Button variant="ghost" asChild>
               <Link to="/auth/login">Sign In</Link>
             </Button>
@@ -75,6 +86,15 @@ const Navigation = () => {
                 Contact
               </a>
               <div className="pt-4 space-y-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="w-full flex items-center gap-2"
+                >
+                  {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {theme === "dark" ? "Light Mode" : "Dark Mode"}
+                </Button>
                 <Button variant="ghost" className="w-full" asChild>
                   <Link to="/auth/login">Sign In</Link>
                 </Button>

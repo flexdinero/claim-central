@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/ThemeProvider";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
@@ -50,9 +51,9 @@ const navigation = [
 export default function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarMobileOpen, setSidebarMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   const isActive = (href: string) => location.pathname === href;
 
@@ -204,9 +205,9 @@ export default function DashboardLayout() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               >
-                {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
 
               {/* Notifications */}
