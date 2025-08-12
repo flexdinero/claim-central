@@ -853,11 +853,11 @@ const Vault = () => {
                     <CardContent className="space-y-2">
                       <div className="flex justify-between">
                         <span className="font-medium">Commission Rate:</span>
-                        <span>{'commissionRate' in selectedItem ? selectedItem.commissionRate : 'N/A'}</span>
+                        <span>{selectedItem && 'commissionRate' in selectedItem ? selectedItem.commissionRate : 'N/A'}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="font-medium">Territory:</span>
-                        <span>{'territory' in selectedItem ? selectedItem.territory : 'N/A'}</span>
+                        <span>{selectedItem && 'territory' in selectedItem ? selectedItem.territory : 'N/A'}</span>
                       </div>
                       <div>
                         <span className="font-medium">Specialties:</span>
