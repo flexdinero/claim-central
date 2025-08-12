@@ -27,6 +27,7 @@ interface WidgetManagerProps {
   onToggleEditMode: () => void;
 }
 
+// Import all widgets
 import { ClaimsFeedWidget } from '@/components/dashboard/widgets/ClaimsFeedWidget';
 import { MessagesWidget } from '@/components/dashboard/widgets/MessagesWidget';
 import { EarningsWidget } from '@/components/dashboard/widgets/EarningsWidget';
