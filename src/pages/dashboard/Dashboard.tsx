@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useState, useCallback } from "react";
-import { WidgetManager, WidgetWrapper, type Widget } from "@/components/dashboard/WidgetManager";
+import { WidgetManager, type Widget } from "@/components/dashboard/WidgetManager";
+import { GridLayoutWidget } from "@/components/dashboard/GridLayoutWidget";
 import { ClaimsFeedWidget } from "@/components/dashboard/widgets/ClaimsFeedWidget";
 import { NotificationCenterWidget } from "@/components/dashboard/widgets/NotificationCenterWidget";
 import { MessagesWidget } from "@/components/dashboard/widgets/MessagesWidget";
@@ -40,7 +41,18 @@ const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
 
 export default function Dashboard() {
   const [editMode, setEditMode] = useState(false);
-  const [widgets, setWidgets] = useState<Widget[]>([
+  
+  // Load widgets from localStorage or use defaults
+  const [widgets, setWidgets] = useState<Widget[]>(() => {
+    const saved = localStorage.getItem('dashboard-widgets');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (error) {
+        console.error('Failed to parse saved widgets:', error);
+      }
+    }
+    return [
     {
       id: 'claims-feed-default',
       name: 'Claims Feed',
@@ -50,7 +62,7 @@ export default function Dashboard() {
       category: 'Claims Management',
       isActive: true,
       position: { x: 0, y: 0 },
-      size: { width: 12, height: 8 }
+      size: { width: 8, height: 6 }
     },
     {
       id: 'notification-center-default',
@@ -60,10 +72,17 @@ export default function Dashboard() {
       defaultSize: 'small',
       category: 'Communication',
       isActive: true,
-      position: { x: 240, y: 0 },
-      size: { width: 6, height: 6 }
+      position: { x: 8, y: 0 },
+      size: { width: 4, height: 4 }
     }
-  ]);
+    ];
+  });
+
+  // Save widgets to localStorage whenever they change
+  const saveWidgets = (newWidgets: Widget[]) => {
+    setWidgets(newWidgets);
+    localStorage.setItem('dashboard-widgets', JSON.stringify(newWidgets));
+  };
 
   const checkCollision = (newWidget: Widget, existingWidgets: Widget[]) => {
     const newLeft = newWidget.position.x;
@@ -121,32 +140,22 @@ export default function Dashboard() {
       ...widget,
       position
     };
-    setWidgets(prev => [...prev, newWidget]);
+    saveWidgets([...widgets, newWidget]);
   }, [widgets]);
 
   const handleRemoveWidget = useCallback((widgetId: string) => {
-    setWidgets(prev => prev.map(w => 
+    const newWidgets = widgets.map(w => 
       w.id === widgetId ? { ...w, isActive: false } : w
-    ));
-  }, []);
+    );
+    saveWidgets(newWidgets);
+  }, [widgets]);
 
   const handleUpdateWidget = useCallback((widgetId: string, updates: Partial<Widget>) => {
-    setWidgets(prev => {
-      const newWidgets = prev.map(w => 
-        w.id === widgetId ? { ...w, ...updates } : w
-      );
-      
-      // Check for collision if position is being updated
-      if (updates.position) {
-        const updatedWidget = newWidgets.find(w => w.id === widgetId);
-        if (updatedWidget && checkCollision(updatedWidget, newWidgets.filter(w => w.id !== widgetId))) {
-          return prev; // Don't update if it would cause collision
-        }
-      }
-      
-      return newWidgets;
-    });
-  }, []);
+    const newWidgets = widgets.map(w => 
+      w.id === widgetId ? { ...w, ...updates } : w
+    );
+    saveWidgets(newWidgets);
+  }, [widgets]);
 
   const toggleEditMode = useCallback(() => {
     setEditMode(prev => !prev);
@@ -227,80 +236,17 @@ export default function Dashboard() {
 
       {/* Dynamic Widgets */}
       <div className="relative min-h-[600px]">
-        {editMode ? (
-          // Edit Mode - Absolute positioning with drag/drop
-          <div className="relative w-full min-h-[600px] bg-muted/10 rounded-lg p-4">
-            {widgets.filter(w => w.isActive).map(widget => {
-              const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
-                                       widget.component;
-              
-              return (
-                <div 
-                  key={widget.id} 
-                  className="absolute"
-                  style={{
-                    left: widget.position.x,
-                    top: widget.position.y,
-                    width: `${widget.size.width * 20}px`,
-                    height: `${widget.size.height * 20}px`,
-                    minWidth: '200px',
-                    minHeight: '150px',
-                    zIndex: 1
-                  }}
-                >
-                  <WidgetWrapper
-                    widget={widget}
-                    editMode={editMode}
-                    onRemove={handleRemoveWidget}
-                    onResize={(id, size) => handleUpdateWidget(id, { size })}
-                    onMove={(id, position) => handleUpdateWidget(id, { position })}
-                  >
-                    <WidgetComponent />
-                  </WidgetWrapper>
-                </div>
-              );
-            })}
-            
-            {widgets.filter(w => w.isActive).length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <Plus className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>Click "Add Widgets" to get started</p>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          // Normal Mode - Grid layout
-          <div className="grid grid-cols-12 gap-6">
-            {widgets.filter(w => w.isActive).map(widget => {
-              const WidgetComponent = WIDGET_COMPONENTS[widget.name.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')] || 
-                                       widget.component;
-              
-              const getSizeClass = (size: Widget['defaultSize']) => {
-                switch (size) {
-                  case 'small': return 'col-span-4 h-80';
-                  case 'medium': return 'col-span-6 h-96';  
-                  case 'large': return 'col-span-12 h-96';
-                  default: return 'col-span-6 h-96';
-                }
-              };
-
-              return (
-                <div key={`grid-${widget.id}`} className={getSizeClass(widget.defaultSize)}>
-                  <div className="w-full h-full">
-                    <WidgetComponent />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <GridLayoutWidget
+          widgets={widgets}
+          editMode={editMode}
+          onRemoveWidget={handleRemoveWidget}
+          onUpdateWidget={handleUpdateWidget}
+        />
 
         {/* Default Quick Actions when no widgets */}
         {widgets.filter(w => w.isActive).length === 0 && !editMode && (
-          <div className="col-span-4">
-            <Card>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Card className="w-96">
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
                 <CardDescription>Common tasks and shortcuts</CardDescription>

@@ -35,6 +35,16 @@ import { SmartSchedulingWidget } from '@/components/dashboard/widgets/SmartSched
 import { AnalyticsWidget } from '@/components/dashboard/widgets/AnalyticsWidget';
 import { NotificationCenterWidget } from '@/components/dashboard/widgets/NotificationCenterWidget';
 import { LicensingComplianceWidget } from '@/components/dashboard/widgets/LicensingComplianceWidget';
+import { DocumentManagementWidget } from '@/components/dashboard/widgets/DocumentManagementWidget';
+import { TaskManagerWidget } from '@/components/dashboard/widgets/TaskManagerWidget';
+import { WeatherWidget } from '@/components/dashboard/widgets/WeatherWidget';
+import { TimeTrackingWidget } from '@/components/dashboard/widgets/TimeTrackingWidget';
+import { ExpenseTrackerWidget } from '@/components/dashboard/widgets/ExpenseTrackerWidget';
+import { ContactsWidget } from '@/components/dashboard/widgets/ContactsWidget';
+import { ReportBuilderWidget } from '@/components/dashboard/widgets/ReportBuilderWidget';
+import { CATEventWidget } from '@/components/dashboard/widgets/CATEventWidget';
+import { MapWidget } from '@/components/dashboard/widgets/MapWidget';
+import { ClientPortalWidget } from '@/components/dashboard/widgets/ClientPortalWidget';
 
 const AVAILABLE_WIDGETS: Omit<Widget, 'id' | 'isActive' | 'position' | 'size'>[] = [
   {
@@ -96,16 +106,72 @@ const AVAILABLE_WIDGETS: Omit<Widget, 'id' | 'isActive' | 'position' | 'size'>[]
   {
     name: 'Report Builder & Exporter',
     description: 'Create and export professional, carrier-ready reports directly from claim data',
-    component: () => <div className="p-4 text-center text-muted-foreground">Report Builder Widget - Coming Soon</div>,
+    component: ReportBuilderWidget,
     defaultSize: 'large',
     category: 'Documentation'
   },
   {
     name: 'CAT Event Management',
     description: 'Dedicated command center for managing catastrophic event responses',
-    component: () => <div className="p-4 text-center text-muted-foreground">CAT Event Widget - Coming Soon</div>,
+    component: CATEventWidget,
     defaultSize: 'large',
     category: 'CAT Management'
+  },
+  {
+    name: 'Document Management',
+    description: 'Organize, store, and manage all claim-related documents and files',
+    component: DocumentManagementWidget,
+    defaultSize: 'medium',
+    category: 'Documentation'
+  },
+  {
+    name: 'Task Manager',
+    description: 'Create, assign, and track tasks and deadlines across all claims',
+    component: TaskManagerWidget,
+    defaultSize: 'medium',
+    category: 'Productivity'
+  },
+  {
+    name: 'Weather Monitor',
+    description: 'Real-time weather conditions and forecasts for claim locations',
+    component: WeatherWidget,
+    defaultSize: 'small',
+    category: 'Weather'
+  },
+  {
+    name: 'Time Tracking',
+    description: 'Track billable hours and time spent on claims and projects',
+    component: TimeTrackingWidget,
+    defaultSize: 'medium',
+    category: 'Productivity'
+  },
+  {
+    name: 'Expense Tracker',
+    description: 'Log and manage business expenses with receipt capture and approval workflow',
+    component: ExpenseTrackerWidget,
+    defaultSize: 'medium',
+    category: 'Financial'
+  },
+  {
+    name: 'Contacts Directory',
+    description: 'Quick access to important contacts with communication tools',
+    component: ContactsWidget,
+    defaultSize: 'medium',
+    category: 'Communication'
+  },
+  {
+    name: 'Interactive Map',
+    description: 'View claim locations, plan routes, and track mileage with GPS integration',
+    component: MapWidget,
+    defaultSize: 'large',
+    category: 'Mapping'
+  },
+  {
+    name: 'Client Portal Monitor',
+    description: 'Monitor client interactions, uploads, and communication through the client portal',
+    component: ClientPortalWidget,
+    defaultSize: 'medium',
+    category: 'Communication'
   }
 ];
 
