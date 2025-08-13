@@ -246,19 +246,21 @@ const Vault = () => {
   const currentItems = selectedTab === "documents" ? documents : contracts;
 
   const filteredItems = currentItems.filter(item => {
-    if (!item) return false;
+    if (!item || typeof item !== 'object') return false;
     
-    const itemName = ('name' in item) ? item.name : (item as any).title;
-    const itemCategory = ('category' in item) ? item.category : (item as any).firm;
+    const itemName = ('name' in item && item.name) ? item.name : 
+                    ('title' in item && item.title) ? item.title : '';
+    const itemCategory = ('category' in item && item.category) ? item.category : 
+                        ('firm' in item && item.firm) ? item.firm : '';
     
     const matchesSearch = itemName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.description?.toLowerCase().includes(searchTerm.toLowerCase());
+                         (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesType = filterType === "all" || 
-                       (selectedTab === "documents" && ('category' in item) && (item as any).category?.toLowerCase() === filterType) ||
-                       (selectedTab === "contracts" && ('firm' in item) && (item as any).firm?.toLowerCase().includes(filterType));
+                       (selectedTab === "documents" && 'category' in item && item.category?.toLowerCase() === filterType) ||
+                       (selectedTab === "contracts" && 'firm' in item && item.firm?.toLowerCase().includes(filterType));
     
-    const matchesStatus = filterStatus === "all" || item.status?.toLowerCase() === filterStatus.toLowerCase();
+    const matchesStatus = filterStatus === "all" || (item.status && item.status.toLowerCase() === filterStatus.toLowerCase());
     
     return matchesSearch && matchesType && matchesStatus;
   });
@@ -266,10 +268,10 @@ const Vault = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Vault</h1>
-          <p className="text-muted-foreground">Secure document and contract management</p>
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground">Vault</h1>
+          <p className="text-sm text-muted-foreground">Secure document and contract management</p>
         </div>
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
           <DialogTrigger asChild>
@@ -379,19 +381,19 @@ const Vault = () => {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-start sm:items-center">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Search className="h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search documents..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
+                className="flex-1 sm:w-64"
               />
             </div>
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-full sm:w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -414,7 +416,7 @@ const Vault = () => {
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-full sm:w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -425,20 +427,24 @@ const Vault = () => {
                 {selectedTab === "contracts" && <SelectItem value="pending signature">Pending</SelectItem>}
               </SelectContent>
             </Select>
-            <div className="flex gap-2 ml-auto">
+            <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
               <Button
                 variant={viewMode === "grid" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("grid")}
+                className="flex-1 sm:flex-none"
               >
                 <Grid className="h-4 w-4" />
+                <span className="ml-2 sm:hidden">Grid</span>
               </Button>
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("list")}
+                className="flex-1 sm:flex-none"
               >
                 <List className="h-4 w-4" />
+                <span className="ml-2 sm:hidden">List</span>
               </Button>
             </div>
           </div>
@@ -447,14 +453,14 @@ const Vault = () => {
 
       {/* Main Vault Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="contracts">Contracts</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 h-10">
+          <TabsTrigger value="documents" className="text-sm">Documents</TabsTrigger>
+          <TabsTrigger value="contracts" className="text-sm">Contracts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="documents" className="space-y-4">
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {currentStats.map((stat, index) => {
               const Icon = stat.icon;
               return (

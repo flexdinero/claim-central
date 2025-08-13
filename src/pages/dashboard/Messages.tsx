@@ -164,52 +164,56 @@ export default function Messages() {
   return (
     <div className="h-[calc(100vh-theme(spacing.16))] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b">
+      <div className="flex items-center justify-between p-3 sm:p-6 border-b">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Messages</h1>
-          <p className="text-muted-foreground">Centralized communication hub</p>
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground">Messages</h1>
+          <p className="text-sm text-muted-foreground">Centralized communication hub</p>
         </div>
       </div>
 
       {/* Centered Tab Navigation */}
       <div className="border-b">
-        <div className="flex justify-center">
+        <div className="flex justify-center px-2">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-2xl">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="priority" className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                Priority
-                <Badge className="ml-1 bg-destructive">1</Badge>
+            <TabsList className="grid w-full grid-cols-4 h-8 sm:h-10">
+              <TabsTrigger value="priority" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
+                <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Priority</span>
+                <span className="sm:hidden">Pri</span>
+                <Badge className="ml-1 bg-destructive text-xs px-1">1</Badge>
               </TabsTrigger>
-              <TabsTrigger value="firms" className="flex items-center gap-2">
-                <Building className="w-4 h-4" />
-                Firms
-                <Badge className="ml-1" variant="secondary">2</Badge>
+              <TabsTrigger value="firms" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
+                <Building className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Firms</span>
+                <span className="sm:hidden">Frm</span>
+                <Badge className="ml-1 variant-secondary text-xs px-1">2</Badge>
               </TabsTrigger>
-              <TabsTrigger value="policyholders" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Policyholders
-                <Badge className="ml-1" variant="secondary">1</Badge>
+              <TabsTrigger value="policyholders" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Policyholders</span>
+                <span className="sm:hidden">Pol</span>
+                <Badge className="ml-1 variant-secondary text-xs px-1">1</Badge>
               </TabsTrigger>
-              <TabsTrigger value="vendors" className="flex items-center gap-2">
-                <Wrench className="w-4 h-4" />
-                Vendors
-                <Badge className="ml-1" variant="secondary">0</Badge>
+              <TabsTrigger value="vendors" className="flex items-center gap-1 text-xs sm:text-sm px-1 sm:px-3">
+                <Wrench className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Vendors</span>
+                <span className="sm:hidden">Ven</span>
+                <Badge className="ml-1 variant-secondary text-xs px-1">0</Badge>
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
       </div>
 
-      {/* Main Content - Three Pane Layout */}
-      <div className="flex-1 flex min-h-0">
+      {/* Main Content - Responsive Layout */}
+      <div className="flex-1 flex min-h-0 flex-col lg:flex-row">
         {/* Left Sidebar - Contact List */}
-        <div className="w-80 border-r bg-muted/30">
-          <div className="p-4 border-b">
-            <Input placeholder="Search contacts..." />
+        <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r bg-muted/30 max-h-64 lg:max-h-none overflow-hidden">
+          <div className="p-2 sm:p-4 border-b">
+            <Input placeholder="Search contacts..." className="text-sm" />
           </div>
           <ScrollArea className="flex-1">
-            <div className="p-4 space-y-2">
+            <div className="p-2 sm:p-4 space-y-2">
               {getContactsByTab(activeTab).map((contact) => (
                 <Card 
                   key={contact.id}
@@ -218,21 +222,21 @@ export default function Messages() {
                   } ${contact.priority ? 'border-primary border-2' : ''}`}
                   onClick={() => setSelectedContact(contact)}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
+                  <CardContent className="p-2 sm:p-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="relative">
-                        <Avatar>
-                          <AvatarFallback>{contact.avatar}</AvatarFallback>
+                        <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                          <AvatarFallback className="text-xs sm:text-sm">{contact.avatar}</AvatarFallback>
                         </Avatar>
                         {contact.priority && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full animate-pulse" />
+                          <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-destructive rounded-full animate-pulse" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="font-medium truncate">{contact.name}</p>
+                          <p className="font-medium truncate text-sm sm:text-base">{contact.name}</p>
                           {contact.unread > 0 && (
-                            <Badge className="bg-primary text-primary-foreground">
+                            <Badge className="bg-primary text-primary-foreground text-xs px-1">
                               {contact.unread}
                             </Badge>
                           )}
@@ -241,13 +245,13 @@ export default function Messages() {
                         {contact.company && (
                           <p className="text-xs text-muted-foreground">{contact.company}</p>
                         )}
-                        <p className="text-sm text-muted-foreground truncate mt-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate mt-1">
                           {contact.lastMessage}
                         </p>
                         <div className="flex items-center justify-between mt-1">
                           <p className="text-xs text-muted-foreground">{contact.time}</p>
                           {contact.sentiment === "negative" && (
-                            <Badge variant="destructive" className="text-xs">
+                            <Badge variant="destructive" className="text-xs px-1">
                               Urgent
                             </Badge>
                           )}
@@ -264,15 +268,15 @@ export default function Messages() {
         {/* Center Pane - Conversation */}
         <div className="flex-1 flex flex-col">
           {/* Conversation Header */}
-          <div className="p-4 border-b bg-background">
+          <div className="p-2 sm:p-4 border-b bg-background">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarFallback>{currentContact.avatar}</AvatarFallback>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+                  <AvatarFallback className="text-xs sm:text-sm">{currentContact.avatar}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-medium">{currentContact.name}</h3>
-                  <p className="text-sm text-muted-foreground">{currentContact.role}</p>
+                  <h3 className="font-medium text-sm sm:text-base">{currentContact.name}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{currentContact.role}</p>
                   {currentContact.claim && (
                     <p className="text-xs text-muted-foreground">
                       Claim: {currentContact.claim}
@@ -280,23 +284,25 @@ export default function Messages() {
                   )}
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline">
-                  <Phone className="w-4 h-4" />
+              <div className="flex gap-1 sm:gap-2">
+                <Button size="sm" variant="outline" className="h-8 w-8 sm:w-auto sm:px-3">
+                  <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline ml-2">Call</span>
                 </Button>
-                <Button size="sm" variant="outline">
-                  <Mail className="w-4 h-4" />
+                <Button size="sm" variant="outline" className="h-8 w-8 sm:w-auto sm:px-3">
+                  <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline ml-2">Email</span>
                 </Button>
               </div>
             </div>
           </div>
 
           {/* Message Thread */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-2 sm:p-4">
+            <div className="space-y-3 sm:space-y-4">
               {conversation.map((message) => (
                 <div key={message.id} className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[70%] ${
+                  <div className={`max-w-[85%] sm:max-w-[70%] ${
                     message.type === 'internal' 
                       ? 'bg-amber-50 border border-amber-200 rounded-lg p-3' 
                       : `rounded-lg p-3 ${
@@ -311,8 +317,8 @@ export default function Messages() {
                         Internal Note
                       </div>
                     )}
-                    <p className="text-sm">{message.message}</p>
-                    <div className="flex items-center justify-between mt-2">
+                    <p className="text-xs sm:text-sm">{message.message}</p>
+                    <div className="flex items-center justify-between mt-1 sm:mt-2">
                       <span className="text-xs opacity-70">{message.sender}</span>
                       <span className="text-xs opacity-70">{message.time}</span>
                     </div>
@@ -323,15 +329,15 @@ export default function Messages() {
           </ScrollArea>
 
           {/* AI Suggestions */}
-          <div className="p-3 border-t bg-muted/30">
+          <div className="p-2 sm:p-3 border-t bg-muted/30">
             <p className="text-xs text-muted-foreground mb-2">AI Suggestions:</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1 sm:gap-2">
               {aiSuggestions.map((suggestion, index) => (
                 <Button
                   key={index}
                   size="sm"
                   variant="outline"
-                  className="text-xs h-7"
+                  className="text-xs h-6 sm:h-7 px-2"
                   onClick={() => setMessageInput(suggestion)}
                 >
                   {suggestion}
@@ -341,28 +347,28 @@ export default function Messages() {
           </div>
 
           {/* Composition Box */}
-          <div className="p-4 border-t">
+          <div className="p-2 sm:p-4 border-t">
             <div className="flex gap-2">
               <Textarea
                 placeholder="Type your message..."
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
-                className="flex-1 min-h-[80px]"
+                className="flex-1 min-h-[60px] sm:min-h-[80px] text-sm"
               />
-              <div className="flex flex-col gap-2">
-                <Button size="sm" variant="outline">
-                  <Paperclip className="w-4 h-4" />
+              <div className="flex flex-col gap-1 sm:gap-2">
+                <Button size="sm" variant="outline" className="h-8 w-8 sm:h-10 sm:w-10">
+                  <Paperclip className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
-                <Button size="sm">
-                  <Send className="w-4 h-4" />
+                <Button size="sm" className="h-8 w-8 sm:h-10 sm:w-10">
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Sidebar - The Oracle Panel */}
-        <div className="w-80 border-l bg-muted/30 p-4 space-y-4">
+        {/* Right Sidebar - The Oracle Panel (Hidden on mobile) */}
+        <div className="hidden xl:block w-80 border-l bg-muted/30 p-4 space-y-4">
           {/* Contact Details */}
           <Card>
             <CardHeader>
