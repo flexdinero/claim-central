@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,11 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  FileText, 
-  CheckCircle, 
-  Clock, 
-  Trophy, 
+import {
+  FileText,
+  CheckCircle,
+  Clock,
+  Trophy,
   DollarSign,
   MapPin,
   Calendar,
@@ -23,12 +23,14 @@ import {
   Eye,
   ExternalLink
 } from "lucide-react";
+import { useRealtimeClaims } from "@/hooks/useRealtimeClaims";
 
 export default function Claims() {
   const [selectedClaim, setSelectedClaim] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterType, setFilterType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const { claims, loading } = useRealtimeClaims();
 
   const stats = [
     { title: "Total Claims", value: "156", icon: FileText, change: "+12%" },
@@ -38,34 +40,22 @@ export default function Claims() {
     { title: "Total Earned", value: "$45,200", icon: DollarSign, change: "+22%" }
   ];
 
-  const availableClaims = [
-    {
-      id: "CLM-2024-001",
-      insured: "Johnson Residence",
-      firm: "ABC Insurance",
-      type: "Hail Damage",
-      location: "Austin, TX",
-      amount: "$2,500",
-      deadline: "3 days",
-      priority: "high",
-      description: "Residential property damage from recent hailstorm",
-      address: "123 Oak Street, Austin, TX 78701",
-      contact: { name: "Sarah Johnson", phone: "(512) 555-0123", email: "sarah.j@email.com" }
-    },
-    {
-      id: "CLM-2024-002", 
-      insured: "Miller Auto Shop",
-      firm: "XYZ Adjusters",
-      type: "Commercial Fire",
-      location: "Dallas, TX",
-      amount: "$8,750",
-      deadline: "5 days",
+  const availableClaims = useMemo(() => {
+    // Map realtime claim rows to UI preview cards; placeholder mapping
+    return claims.map((c) => ({
+      id: c.claim_id,
+      insured: c.title ?? c.claim_id,
+      firm: c.firm_id,
+      type: c.status ?? "Unknown",
+      location: "",
+      amount: "",
+      deadline: "",
       priority: "medium",
-      description: "Fire damage to commercial auto repair facility",
-      address: "456 Industrial Blvd, Dallas, TX 75201",
-      contact: { name: "Mike Miller", phone: "(214) 555-0456", email: "mike@millerauto.com" }
-    }
-  ];
+      description: c.title ?? "",
+      address: "",
+      contact: { name: "", phone: "", email: "" }
+    }));
+  }, [claims]);
 
   const myClaims = [
     {
